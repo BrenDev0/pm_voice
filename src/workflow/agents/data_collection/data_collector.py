@@ -1,14 +1,8 @@
-import asyncio
-import os
-import uuid
-
 from src.workflow.services.llm_service import LlmService
 from src.workflow.services.prompt_service import PromptService
 from src.workflow.state import State
 
-
-
-class Orchestrator:
+class DataCollector:
     def __init__(self, llm_service: LlmService, prompt_service: PromptService):
         self.llm_service = llm_service
         self.prompt_service = prompt_service
@@ -43,7 +37,6 @@ class Orchestrator:
         chain = prompt | llm
 
         response = []
-        accumulated_text = ""
         async for chunk in chain.astream({'input': state["input"]}):
             print(chunk.content)
             response.append(chunk.content)

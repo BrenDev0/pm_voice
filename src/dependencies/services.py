@@ -20,4 +20,3 @@ def get_prompt_service(
     return PromptService(
         embedding_service=embedding_service
     )
-

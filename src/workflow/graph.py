@@ -1,25 +1,28 @@
+import os
 from fastapi import Depends
 from langgraph.graph import StateGraph, START, END
 
 from src.workflow.state import State
-from src.dependencies.agents import get_orchestrator_agent
-from src.workflow.agents.orchestrator.orchestrator_agent import Orchestrator
+from src.dependencies.agents import get_data_collector
+from workflow.agents.data_collection.data_collector import DataCollector
 
 
 
 def create_graph(
-    orchestrator: Orchestrator = Depends(get_orchestrator_agent)
+    data_collector: DataCollector = Depends(get_data_collector)
 ):
     graph = StateGraph(State)
+    
+    async def intro_node(state: State):
+        pass
+    
+    async def data_collection_node(state: State):
+        await data_collector.interact(state=state)
 
-    async def orchestrator_node(state: State):
-        response = await orchestrator.interact(state=state)
+        return state
+    
 
-        return {"response": response}
-
-    graph.add_node("orchestrator", orchestrator_node)
-
-    graph.add_edge(START, "orchestrator")
-    graph.add_edge("orchestrator", END)
+    graph.add_node("intro", intro_node)
+    graph.add_node("data_collection", data_collection_node)
 
     return graph.compile()
