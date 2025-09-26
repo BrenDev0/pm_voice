@@ -6,16 +6,11 @@ from src.workflow.state import State
 
 from src.workflow.agents.data_collection.agent import DataCollector
 from src.workflow.agents.data_collection.dependencies import get_data_collector
-from src.workflow.agents.data_collection.models import DataCollectorResponse
-
 
 def create_graph(
     data_collector: DataCollector = Depends(get_data_collector)
 ):
     graph = StateGraph(State)
-    
-    async def intro_node(state: State):
-        pass
     
     async def data_collection_node(state: State):
         response = await data_collector.interact(state=state)
@@ -26,8 +21,8 @@ def create_graph(
             "appointment_data": response.appointment_data
         }
     
-
-    graph.add_node("intro", intro_node)
     graph.add_node("data_collection", data_collection_node)
+
+    graph.add_edge(START, "data_collector")
 
     return graph.compile()

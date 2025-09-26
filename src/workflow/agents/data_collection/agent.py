@@ -27,14 +27,23 @@ class DataCollector:
 
         Instructions:
         - Review the latest client response and the chat history.
-        - If you find any information that matches the above fields, return ONLY a JSON dictionary with the relevant fields and their values, using the exact field names.
-        - If no new information is found, return an empty JSON object: {{}}
+        - Return a JSON dictionary with the keys "investment_data", "client_data", and "appointment_data".
+        - For each key, include only the fields for which you found new information. If you have no new data for a section, set its value to an empty object: {{}}
+        - Use the exact field names as shown above.
+        - Do not include any extra text or explanation, only the JSON object.
 
         Example output:
         {{
         "client_data": {{"name": "Juan Perez"}},
         "investment_data": {{"type": "house", "location": "Merida", "budget": 2000000, "action": "buy"}},
         "appointment_data": {{"appointment_datetime": "2024-07-01T10:00:00"}}
+        }}
+
+        Example output with no new data:
+        {{
+        "client_data": {{}},
+        "investment_data": {{}},
+        "appointment_data": {{}}
         }}
         """
 
