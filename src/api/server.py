@@ -72,7 +72,7 @@ async def websocket_interact(
                 data = await websocket.receive_bytes()
                 dg_connection.send(data)
         except WebSocketDisconnect:
-            print("client disconect")
+            print("client disconnect")
             
             if len(chunks) != 0:
                 input = " ".join(chunks)

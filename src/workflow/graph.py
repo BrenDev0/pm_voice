@@ -3,9 +3,10 @@ from fastapi import Depends
 from langgraph.graph import StateGraph, START, END
 
 from src.workflow.state import State
-from src.dependencies.agents import get_data_collector
-from workflow.agents.data_collection.data_collector import DataCollector
 
+from src.workflow.agents.data_collection.agent import DataCollector
+from src.workflow.agents.data_collection.dependencies import get_data_collector
+from src.workflow.agents.data_collection.models import DataCollectorResponse
 
 
 def create_graph(
@@ -17,9 +18,13 @@ def create_graph(
         pass
     
     async def data_collection_node(state: State):
-        await data_collector.interact(state=state)
+        response = await data_collector.interact(state=state)
 
-        return state
+        return {
+            "invenstment_data": response.investment_data,
+            "client_data": response.client_data,
+            "appointment_data": response.appointment_data
+        }
     
 
     graph.add_node("intro", intro_node)

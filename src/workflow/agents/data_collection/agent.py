@@ -1,0 +1,73 @@
+from src.workflow.services.llm_service import LlmService
+from src.workflow.services.prompt_service import PromptService
+from src.workflow.state import State
+from src.workflow.agents.data_collection.models import DataCollectorResponse
+
+class DataCollector:
+    def __init__(self, llm_service: LlmService, prompt_service: PromptService):
+        self.llm_service = llm_service
+        self.prompt_service = prompt_service
+      
+    async def __get_prompt(
+        self,
+        state: State
+    ):
+        system_message = f"""
+        You are a data extraction assistant for a real estate workflow. 
+        Your job is to analyze the latest client response and the chat history to extract any information that matches the following fields:
+
+        Investment Data: type (house, apartment, commercial, land), location, budget, action (buy, sell, rent)
+        Client Data: name, email, phone
+        Appointment Data: appointment_datetime
+
+        CURRENT STATE:
+        Investment Data: {state.get('investment_data')}
+        Client Data: {state.get('client_data')}
+        Appointment Data: {state.get('appointment_data')}
+
+        Instructions:
+        - Review the latest client response and the chat history.
+        - If you find any information that matches the above fields, return ONLY a JSON dictionary with the relevant fields and their values, using the exact field names.
+        - If no new information is found, return an empty JSON object: {{}}
+
+        Example output:
+        {{
+        "client_data": {{"name": "Juan Perez"}},
+        "investment_data": {{"type": "house", "location": "Merida", "budget": 2000000, "action": "buy"}},
+        "appointment_data": {{"appointment_datetime": "2024-07-01T10:00:00"}}
+        }}
+        """
+
+        prompt = await self.prompt_service.custom_prompt_template(
+            state=state,
+            system_message=system_message,
+            with_chat_history=True
+        )
+
+        return prompt
+    
+    async def interact(
+        self,
+        state: State
+    ) -> DataCollectorResponse:
+        
+        prompt = await self.__get_prompt(state=state)
+
+        llm = self.llm_service.get_llm(
+            temperature=1.0,
+            max_tokens=100
+        )
+
+        structured_llm = llm.with_structured_output(DataCollectorResponse)
+
+        chain = prompt | structured_llm
+
+        response = chain.aivoke({"input": state["input"]})
+
+        return response
+
+
+
+        
+
+        
