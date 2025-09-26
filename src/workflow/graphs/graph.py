@@ -43,12 +43,24 @@ def create_graph(
 
         return {"investment_data": investment_data_state}
     
+    def router(state: State):
+        pass
+    
     graph.add_node("data_collection", data_collection_node)
     graph.add_node("appointments", appointments_node)
     graph.add_node("client_data", client_data_node)
     graph.add_node("investment_data", investment_data_node)
 
     graph.add_edge(START, "data_collection")
+    graph.add_conditional_edges(
+        "data_collection",
+        router,
+        {
+            "appointments": "appointments",
+            "client_data": "client_data",
+            "investment_data": "investment_data"
+        }
+    )
     graph.add_edge("appointments", END)
     graph.add_edge("client_data", END)
     graph.add_edge("investment_data", END)
