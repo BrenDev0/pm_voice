@@ -2,20 +2,20 @@ import os
 from fastapi import Depends
 from langgraph.graph import StateGraph, START, END
 
-from src.workflow.graphs.subgraphs.appointments_graph import create_appointments_graph
-from src.workflow.graphs.subgraphs.client_data_graph import create_client_data_graph
-from src.workflow.graphs.subgraphs.invenstment_data_graph import create_investment_data_graph
+from src.workflow.state import State
 
-from src.workflow.state import State, AppointmentData, ClientData, InvestmentData
+from src.workflow.modules.data_collection.agent import DataCollector
+from src.workflow.modules.data_collection.dependencies import get_data_collector
 
-from src.workflow.agents.data_collection.agent import DataCollector
-from src.workflow.agents.data_collection.dependencies import get_data_collector
+from src.workflow.base_agent import BaseAgent
+
+from src.workflow.modules.client_data.dependencies import get_client_data_agent
+from src.workflow.modules.investment_data.dependencies  import get_iventstment_data_agent
 
 def create_graph(
     data_collector: DataCollector = Depends(get_data_collector),
-    appointments_subgraph = Depends(create_appointments_graph),
-    client_data_subgraph = Depends(create_client_data_graph),
-    investment_data_subgraph = Depends(create_investment_data_graph)
+    client_data_agent: BaseAgent  = Depends(get_client_data_agent),
+    investment_data_agent: BaseAgent = Depends(get_iventstment_data_agent)
  ):
     graph = StateGraph(State)
     
@@ -29,19 +29,14 @@ def create_graph(
         }
     
     async def appointments_node(state: State):
-        appointments_state = await appointments_subgraph.ainvoke(state["appointment_data"])
-
-        return {"appointment_data": appointments_state}
+        pass
 
     async def client_data_node(state: State):
-        client_data_state = await client_data_subgraph.ainvoke(state["client_data"])
-
-        return {"client_data": client_data_state}
+        await client_data_agent.interact(state=state)
+        return state
     
     async def investment_data_node(state: State):
-        investment_data_state = await investment_data_subgraph.ainvoke(state["investment_data"])
-
-        return {"investment_data": investment_data_state}
+        await investment_data_agent.interact(state=state)
     
     def router(state: State):
         pass

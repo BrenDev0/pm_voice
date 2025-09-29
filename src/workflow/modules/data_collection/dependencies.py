@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from src.workflow.agents.data_collection.agent import DataCollector
+from src.workflow.modules.data_collection.agent import DataCollector
 from src.workflow.services.llm_service import LlmService
 from src.workflow.services.prompt_service import PromptService
 

@@ -1,33 +1,9 @@
 from typing_extensions import TypedDict
-from pydantic import BaseModel
-from datetime import datetime
-from typing import List, Dict, Any, Optional
-from enum import Enum
+from typing import List, Dict, Any
 
-class PropertyType(str, Enum):
-    HOUSE = "house"
-    APARTMENT = "apartment"
-    COMMERCIAL = "commercial"
-    LAND = "land"
-
-class PropertyAction(str, Enum):
-    BUY = "buy"
-    SELL = "sell"
-    RENT = "rent"
-
-class InvestmentData(BaseModel):
-    type: Optional[PropertyType] = None
-    location: Optional[str] = None
-    budget: Optional[float] = None
-    action: Optional[PropertyAction] = None
-
-class ClientData(BaseModel):
-    name: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-
-class AppointmentData(BaseModel):
-    appointment_datetime: Optional[datetime] = None 
+from src.workflow.modules.appointments.models import AppointmentData
+from src.workflow.modules.client_data.models import ClientData
+from src.workflow.modules.investment_data.models import InvestmentData
 
 class State(TypedDict):
     call_id: str

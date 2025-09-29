@@ -1,3 +1,4 @@
+import os
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from typing import List, Dict, Any
@@ -19,7 +20,8 @@ class PromptService:
         context_top_k: int = 4
     ):
         messages = [
-            SystemMessagePromptTemplate.from_template(system_message)
+            SystemMessagePromptTemplate.from_template(system_message),
+            SystemMessage(content=f"You will always answer in {os.getenv("AGENT_LANGUAGE")}")
         ]
 
         if with_chat_history:

@@ -1,7 +1,7 @@
 from src.workflow.services.llm_service import LlmService
 from src.workflow.services.prompt_service import PromptService
 from src.workflow.state import State
-from src.workflow.agents.data_collection.models import DataCollectorResponse
+from src.workflow.modules.data_collection.models import DataCollectorResponse
 
 class DataCollector:
     def __init__(self, llm_service: LlmService, prompt_service: PromptService):
