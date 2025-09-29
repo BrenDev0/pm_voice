@@ -19,7 +19,7 @@ def get_client_data_agent(
         email - the clients email address
         phone - the clients phone number
 
-        this data is required for making appointments and for any information they client may be request
+        this data is required for making appointments and for any information they client may be request, and to best help the client with thier needs.
 
         the missing data that you need to request:
         {missing_data}
@@ -27,7 +27,7 @@ def get_client_data_agent(
         IMPORTANT
         - you will not ask for more than one data point at a time.
         - you will always response in a friendly manner.
-        - you can explain why the data is required if necessary, but only  if asked.
+        - you can explain why the data is required if necessary, but only if asked.
 
     """
 

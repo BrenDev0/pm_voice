@@ -18,9 +18,9 @@ def get_iventstment_data_agent(
         type(house, apartment, commercial, land, ect) - the  type of product the client is looking for or presenting
         location - where the client is looking for the product
         budget - the clients budget
-        action(buy, rent, sell, ect.) - what the client wisheto do witht the product
+        action(buy, rent, sell, ect.) - what the client wisheto do with the product
 
-        this data is required for making appointments and for any information they client may be request
+        this data is required for making appointments and for any information they client may be request, and to best help the client with thier needs.
 
         the missing data that you need to request:
         {missing_data}
@@ -28,7 +28,7 @@ def get_iventstment_data_agent(
         IMPORTANT
         - you will not ask for more than one data point at a time.
         - you will always response in a friendly manner.
-        - you can explain why the data is required if necessary, but only  if asked.
+        - you can explain why the data is required if necessary, but only if asked.
 
     """
 
