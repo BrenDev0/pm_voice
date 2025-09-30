@@ -48,9 +48,11 @@ class DataCollector:
         """
 
         prompt = await self.prompt_service.custom_prompt_template(
-            state=state,
             system_message=system_message,
-            with_chat_history=True
+            with_input=True,
+            input_text=state['input'],
+            with_chat_history=True,
+            chat_history=state['chat_history']
         )
 
         return prompt
@@ -63,8 +65,7 @@ class DataCollector:
         prompt = await self.__get_prompt(state=state)
 
         llm = self.llm_service.get_llm(
-            temperature=1.0,
-            max_tokens=100
+            temperature=1.0
         )
 
         structured_llm = llm.with_structured_output(DataCollectorResponse)

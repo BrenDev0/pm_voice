@@ -1,7 +1,5 @@
-from typing_extensions import TypedDict
 from pydantic import BaseModel
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import  Optional
 from enum import Enum
 
 class PropertyType(str, Enum):
