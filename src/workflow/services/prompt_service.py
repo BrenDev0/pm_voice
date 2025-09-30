@@ -11,10 +11,12 @@ class PromptService:
 
 
     async def custom_prompt_template(
-        self, 
-        state: State, 
+        self,  
         system_message: str, 
-        with_chat_history: bool = False, 
+        with_input: bool = False,
+        input_text: str = None,
+        with_chat_history: bool = False,
+        chat_history: List[Dict[str, Any]] = None,
         with_context: bool = False, 
         context_collection: str = None,
         context_top_k: int = 4
@@ -24,18 +26,19 @@ class PromptService:
             SystemMessage(content=f"You will always answer in {os.getenv("AGENT_LANGUAGE")}")
         ]
 
-        if with_chat_history:
-            messages = self.add_chat_history(state, messages)
+        if with_chat_history and chat_history:
+            messages = self.add_chat_history(chat_history=chat_history, messages=messages)
 
-        if with_context and context_collection != None:
+        if with_context and context_collection is not None and with_input:
             messages = await self.add_context(
-                input=state["input"], 
+                input=input_text, 
                 messages=messages, 
                 collection_name=context_collection,
                 top_k=context_top_k
             )
 
-        messages.append(HumanMessagePromptTemplate.from_template('{input}'))
+        if with_input:
+            messages.append(HumanMessage(content=input_text))
 
         prompt = ChatPromptTemplate.from_messages(messages)
 
@@ -67,9 +70,8 @@ class PromptService:
         return messages
 
     @staticmethod
-    def add_chat_history(state: State, messages: List[Any]) -> List[Any]:
+    def add_chat_history(chat_history: List[Dict[str, Any]], messages: List[Any]) -> List[Any]:
 
-        chat_history = state.get("chat_history", [])
         if chat_history:
             for msg in chat_history:
                 if msg["message_type"] == "human":
