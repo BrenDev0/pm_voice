@@ -3,12 +3,15 @@ from src.workflow.services.prompt_service import PromptService
 from typing import List, Dict, Any
 from src.workflow.modules.investment_data.models import InvestmentData
 
+from  src.utils.decorators.error_handler import error_handler
 
 class InvestmentDataAgent:
+    __MODULE = "investment_data.agent"
     def __init__(self, llm_service: LlmService, prompt_service: PromptService):
         self.llm_service = llm_service
         self.prompt_service = prompt_service
-      
+    
+    @error_handler(module=__MODULE)
     async def __get_prompt(
         self,
         state: InvestmentData,
@@ -45,6 +48,7 @@ class InvestmentDataAgent:
 
         return prompt
     
+    @error_handler(module=__MODULE)
     async def interact(
         self,
         state: InvestmentData,

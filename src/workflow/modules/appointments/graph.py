@@ -1,32 +1,30 @@
 from langgraph.graph import  StateGraph, START, END
 from  fastapi import Depends
 
-from src.workflow.base_agent import BaseAgent
-
-from src.workflow.state import State
+from src.workflow.modules.appointments.agent import ApointmentsAgent
+from src.workflow.modules.appointments.models import AppointmentData
 from src.workflow.modules.appointments.dependencies import get_appoinments_agent
 
 def create_appointments_graph(
-    appoinment_agent: BaseAgent = Depends(get_appoinments_agent)
+    appoinment_agent: ApointmentsAgent = Depends(get_appoinments_agent)
 ):
-    graph = StateGraph(State)
+    graph = StateGraph(AppointmentData)
 
-    def router(state: State):
+    def router(state: AppointmentData):
         pass
 
-    async def get_datetime_node(state: State):
+    async def get_datetime_node(state: AppointmentData):
         response = await appoinment_agent.interact({"input": state["input"]})
 
-        state["appointment_data"].appointment_datetime = response
-        return state["appointment_data"]
+        return {"appointment_datetime": response}
 
-    async def check_availability_node(state: State):
+    async def check_availability_node(state: AppointmentData):
         pass
 
-    async def unavailable_node(state: State):
+    async def unavailable_node(state: AppointmentData):
         pass
 
-    async def confirmation_node(state: State):
+    async def confirmation_node(state: AppointmentData):
         pass
 
     graph.add_node("get_datetime", get_datetime_node)

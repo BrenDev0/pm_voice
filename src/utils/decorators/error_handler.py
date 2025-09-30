@@ -15,7 +15,7 @@ def error_handler(module: str) -> Callable:
             except Exception as e:
                 logger: Logger = Container.resolve("logger")
                 logger.log(
-                    message=f"Error in {func.__name__}",
+                    message=f"Error in {func.__name__}::::: {e} :::::",
                     level=logging.ERROR,
                     name=f"{module}.{func.__name__}",
                     exc_info=True

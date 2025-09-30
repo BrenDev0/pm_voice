@@ -3,11 +3,15 @@ from src.workflow.services.prompt_service import PromptService
 from src.workflow.state import State
 from src.workflow.modules.data_collection.models import DataCollectorResponse
 
+from src.utils.decorators.error_handler import error_handler
+
 class DataCollector:
+    __MODULE = "data_collector.agent"
     def __init__(self, llm_service: LlmService, prompt_service: PromptService):
         self.llm_service = llm_service
         self.prompt_service = prompt_service
-      
+    
+    @error_handler(module=__MODULE)
     async def __get_prompt(
         self,
         state: State
@@ -57,6 +61,7 @@ class DataCollector:
 
         return prompt
     
+    @error_handler(module=__MODULE)
     async def interact(
         self,
         state: State
