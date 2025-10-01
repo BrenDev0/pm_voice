@@ -13,8 +13,7 @@ class ApointmentsAgent:
     
     @error_handler(module=__MODULE)
     async def __get_prompt(
-        self,
-        chat_history: List[Dict[str, Any]]
+        self
     ):
         system_message = """
         You are an appoinment maker.
@@ -22,9 +21,7 @@ class ApointmentsAgent:
         """
 
         prompt = await self.prompt_service.custom_prompt_template(
-            system_message=system_message,
-            with_chat_history=True,
-            chat_history=chat_history
+            system_message=system_message
         )
 
         return prompt
@@ -32,13 +29,10 @@ class ApointmentsAgent:
     
     @error_handler(module=__MODULE)
     async def interact(
-        self,
-        chat_history: List[Dict[str, Any]]
+        self
     ):
         
-        prompt = await self.__get_prompt(
-            chat_history=chat_history
-        )
+        prompt = await self.__get_prompt()
 
         llm = self.llm_service.get_llm(
             temperature=1.0

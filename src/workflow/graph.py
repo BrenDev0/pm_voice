@@ -1,21 +1,23 @@
 import os
 from fastapi import Depends
 from langgraph.graph import StateGraph, START, END
+from langgraph.graph.state import CompiledStateGraph
 
 from src.workflow.state import State
 
+from src.workflow.modules.appointments.graph import create_appointments_graph
 from src.workflow.modules.data_collection.agent import DataCollector
 from src.workflow.modules.data_collection.dependencies import get_data_collector
-
-from src.workflow.base_agent import BaseAgent
-
+from src.workflow.modules.client_data.agent import ClientDataAgent
 from src.workflow.modules.client_data.dependencies import get_client_data_agent
+from src.workflow.modules.investment_data.agent import InvestmentDataAgent
 from src.workflow.modules.investment_data.dependencies  import get_iventstment_data_agent
 
 def create_graph(
+    appointments_subgraph: CompiledStateGraph = Depends(create_appointments_graph),
+    client_data_agent: ClientDataAgent  = Depends(get_client_data_agent),
     data_collector: DataCollector = Depends(get_data_collector),
-    client_data_agent: BaseAgent  = Depends(get_client_data_agent),
-    investment_data_agent: BaseAgent = Depends(get_iventstment_data_agent)
+    investment_data_agent: InvestmentDataAgent = Depends(get_iventstment_data_agent)
  ):
     graph = StateGraph(State)
     
@@ -29,14 +31,24 @@ def create_graph(
         }
     
     async def appointments_node(state: State):
-        pass
+        appointments_state = await appointments_subgraph.ainvoke(state["appointment_data"])
+
+        return {"appointment_data": appointments_state}
 
     async def client_data_node(state: State):
-        await client_data_agent.interact(state=state)
+        await client_data_agent.interact(
+            state=state["client_data"],
+            chat_history=state["chat_history"]
+        )
         return state
     
     async def investment_data_node(state: State):
-        await investment_data_agent.interact(state=state)
+        await investment_data_agent.interact(
+            state=state["investment_data"],
+            chat_history=state["chat_history"]
+        )
+
+        return state
     
     def router(state: State):
         pass
