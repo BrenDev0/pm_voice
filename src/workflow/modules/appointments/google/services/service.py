@@ -13,8 +13,8 @@ class GoogleService:
         client_manager: GoogleClientManager
         
     ):
-        self.__calendar_service = calendar_service
-        self.__client_manager = client_manager
+        self.calendar_service = calendar_service
+        self.client_manager = client_manager
        
 
-  
+   

@@ -51,7 +51,21 @@ def create_graph(
         return state
     
     def router(state: State):
-        pass
+        client_data = state["client_data"].model_dump()
+        investment_data = state["investment_data"].model_dump()
+        apppointment_data = state["appointment_data"].model_dump()
+
+        if any(value is None for value in client_data.values()):
+            return "client_data"
+        
+        elif any(value is None for value in investment_data.values()):
+            return "investment_data"
+        
+        elif any(value is None for value in apppointment_data.values()):
+            return "appointments"
+        
+        else:
+            return "confirmation"
     
     graph.add_node("data_collection", data_collection_node)
     graph.add_node("appointments", appointments_node)
