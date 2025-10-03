@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from deepgram import LiveTranscriptionEvents
 from fastapi.staticfiles import StaticFiles
 
-from src.dependencies.services import get_deepgram_service
-from src.workflow.services.deepgram_service import DeepGramService
+from src.api.modules.deepgram.dependencies import get_deepgram_service
+from src.api.modules.deepgram.service import DeepGramService
 
 
 app = FastAPI()
