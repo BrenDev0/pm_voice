@@ -2,7 +2,7 @@ import os
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from typing import List, Dict, Any
-from src.workflow.services.embedding_service import EmbeddingService
+from src.workflow.services.embedding.embedding_service import EmbeddingService
 from src.workflow.state import State
 
 class PromptService:

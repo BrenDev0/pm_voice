@@ -1,10 +1,12 @@
 from fastapi import Depends
 
 from src.workflow.modules.investment_data.agent import InvestmentDataAgent
-from src.workflow.services.llm_service import LlmService
-from src.workflow.services.prompt_service import PromptService
 
-from src.dependencies.services import get_llm_service, get_prompt_service
+from workflow.services.llm.llm_service import LlmService
+from src.workflow.services.prompt.infrastructure.dependencies import get_prompt_service
+
+from workflow.services.prompt.prompt_service import PromptService
+from src.workflow.services.llm.infrastructure.dependencies import get_llm_service
 
 def get_iventstment_data_agent(
     llm_service: LlmService = Depends(get_llm_service),

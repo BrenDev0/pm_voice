@@ -2,8 +2,8 @@
 from functools import wraps
 import logging
 from typing import Callable, Any
-from src.utils.logs.logger import Logger
-from src.dependencies.container import Container
+from src.libs.infrastructure.utils.logs.logger import Logger
+from src.libs.infrastructure.dependencies.container import Container
 
 
 def error_handler(module: str) -> Callable:

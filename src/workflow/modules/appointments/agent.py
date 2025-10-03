@@ -1,7 +1,7 @@
-from src.workflow.services.llm_service import LlmService
-from src.workflow.services.prompt_service import PromptService
+from workflow.services.llm.llm_service import LlmService
+from workflow.services.prompt.prompt_service import PromptService
 
-from src.utils.decorators.error_handler import error_handler
+from src.libs.infrastructure.utils.decorators.error_handler import error_handler
 
 from typing import List, Dict, Any
 
