@@ -1,8 +1,7 @@
 import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from src.utils.decorators.error_handler import error_handler
-from src.workflow.modules.appointments.google.decorators.errors import google_api_error_handler
+from src.workflow.modules.appointments.google.infrastructure.decorators.errors import google_api_error_handler
 
 class GoogleClientManager:
     __MODULE = "google.service.clientManager"

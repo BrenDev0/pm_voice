@@ -1,7 +1,7 @@
-from workflow.services.llm.llm_service import LlmService
-from workflow.services.prompt.prompt_service import PromptService
+from src.workflow.services.llm.llm_service import LlmService
+from src.workflow.services.prompt.prompt_service import PromptService
 from src.workflow.state import State
-from src.workflow.modules.data_collection.models import DataCollectorResponse
+from src.workflow.modules.data_collection.domain.models import DataCollectorResponse
 
 from src.libs.infrastructure.utils.decorators.error_handler import error_handler
 

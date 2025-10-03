@@ -6,7 +6,7 @@ import datetime
 from typing import List, Dict
 import json
 
-from src.workflow.modules.appointments.google.decorators.errors import google_api_error_handler
+from src.workflow.modules.appointments.google.infrastructure.decorators.errors import google_api_error_handler
 
 class GoogleCalendarService:
     __MODULE = "google.service.calendar_service"

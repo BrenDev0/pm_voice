@@ -2,8 +2,8 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
 
-from src.workflow.modules.appointments.google.services.client_manager import GoogleClientManager
-from src.workflow.modules.appointments.google.services.calendar_serivce import GoogleCalendarService
+from src.workflow.modules.appointments.google.infrastructure.services.client_manager import GoogleClientManager
+from src.workflow.modules.appointments.google.infrastructure.services.calendar_serivce import GoogleCalendarService
 
 
 class GoogleService:

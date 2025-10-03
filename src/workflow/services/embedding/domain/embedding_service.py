@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import List, Any, Dict, Optional
+from typing import List, Optional
+from src.workflow.services.embedding.domain.models import SearchResult
 
 
 class EmbeddingService(ABC):
@@ -9,7 +10,7 @@ class EmbeddingService(ABC):
         query: str,
         collection_name: str,
         limit: int = 4
-    ) -> List[Dict[str, Any]]:
+    ) -> List[SearchResult]:
         raise NotImplementedError
     
     @abstractmethod

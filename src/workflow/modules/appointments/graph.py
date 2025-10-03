@@ -1,9 +1,9 @@
 from langgraph.graph import  StateGraph, START, END
 from  fastapi import Depends
 
-from src.workflow.modules.appointments.agent import ApointmentsAgent
+from src.workflow.modules.appointments.infrastructure.agent import ApointmentsAgent
 from src.workflow.modules.appointments.models import AppointmentData
-from src.workflow.modules.appointments.dependencies import get_appoinments_agent
+from src.workflow.modules.appointments.infrastructure.dependencies import get_appoinments_agent
 
 def create_appointments_graph(
     appoinment_agent: ApointmentsAgent = Depends(get_appoinments_agent)

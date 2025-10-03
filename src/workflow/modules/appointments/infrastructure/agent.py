@@ -3,8 +3,6 @@ from workflow.services.prompt.prompt_service import PromptService
 
 from src.libs.infrastructure.utils.decorators.error_handler import error_handler
 
-from typing import List, Dict, Any
-
 class ApointmentsAgent:
     __MODULE = "appointments.agent"
     def __init__(self, llm_service: LlmService, prompt_service: PromptService):
