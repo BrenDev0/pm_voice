@@ -3,7 +3,7 @@ from typing import AsyncIterable
 from deepgram import LiveTranscriptionEvents
 
 from src.core.services.speech.domain.speech_to_text import SpeechToText
-from core.services.speech.infrastructure.deepgram.infrastructure.utils.deepgram_ws_methods import (
+from src.core.services.speech.infrastructure.deepgram.utils.deepgram_ws_methods import (
     on_close, on_error, on_open, get_options, get_connection
 )
 
