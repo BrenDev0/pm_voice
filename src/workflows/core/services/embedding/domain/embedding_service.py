@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from src.workflows.services.embedding.domain.models import SearchResult
+from src.workflows.core.services.embedding.domain.entities import SearchResult
 
 
 class EmbeddingService(ABC):

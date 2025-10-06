@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from src.workflows.modules.appointments.domain.models import EventData
+from src.workflows.modules.appointments.services.calendar.domain.entities import Event
 from typing import List
 
 class CalendarService(ABC):
     @classmethod
-    def get_events() -> List[EventData]:
+    def get_events():
         raise NotImplementedError
     
-    def add_event(event: EventData):
+    def add_event(event: Event):
         raise NotImplementedError

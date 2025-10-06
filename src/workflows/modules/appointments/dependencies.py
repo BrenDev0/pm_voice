@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from workflows.modules.appointments.agent import ApointmentsAgent
+from src.workflows.modules.appointments.agent import ApointmentsAgent
 
 from src.workflows.core.services.llm.service import LlmService
 from src.workflows.core.services.prompt.dependencies import get_prompt_service
