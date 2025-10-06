@@ -1,0 +1,13 @@
+from fastapi import Depends
+
+from src.workflows.services.prompt.prompt_service import PromptService
+
+from src.workflows.services.embedding.domain.embedding_service import EmbeddingService
+from src.workflows.services.embedding.infrastructure.qdrant.dependencies import get_qdrant_embedding_service
+
+def get_prompt_service(
+    embedding_service: EmbeddingService = Depends(get_qdrant_embedding_service)
+) -> PromptService:
+    return PromptService(
+        embedding_service=embedding_service
+    )

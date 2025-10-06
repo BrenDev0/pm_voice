@@ -7,6 +7,9 @@ requires-python = ">=3.12"
 dependencies = [
     "deepgram-sdk>=5.0.0",
     "fastapi[standard]>=0.118.0",
+    "google-api-python-client>=2.184.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
     "langchain>=0.3.27",
     "langchain-community>=0.3.30",
     "langchain-openai>=0.3.34",
@@ -16,6 +19,7 @@ dependencies = [
     "pydantic>=2.11.9",
     "pytest>=8.4.2",
     "pytest-asyncio>=1.2.0",
+    "qdrant-client>=1.15.1",
     "sounddevice>=0.5.2",
     "soundfile>=0.13.1",
 ]

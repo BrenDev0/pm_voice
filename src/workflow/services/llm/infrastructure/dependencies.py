@@ -1,4 +1,0 @@
-from workflow.services.llm.llm_service import LlmService
-
-def get_llm_service() -> LlmService:
-    return LlmService()
