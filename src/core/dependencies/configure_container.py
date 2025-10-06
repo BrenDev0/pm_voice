@@ -1,6 +1,6 @@
-from src.dependencies.container import Container
+from src.core.dependencies.container import Container
 
-from src.utils.logs.logger import Logger
+from src.core.utils.logs.logger import Logger
 
 
 def configure_container():
