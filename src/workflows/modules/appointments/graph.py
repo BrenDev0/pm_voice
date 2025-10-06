@@ -5,8 +5,12 @@ from src.workflows.modules.appointments.agent import ApointmentsAgent
 from src.workflows.modules.appointments.models import AppointmentState
 from src.workflows.modules.appointments.dependencies import get_appoinments_agent
 
+from src.workflows.modules.appointments.services.calendar.domain.calendar_service import CalendarService
+from src.workflows.modules.appointments.services.calendar.infrastructure.google.dependencies import get_google_calendar_service
+
 def create_appointments_graph(
-    appoinment_agent: ApointmentsAgent = Depends(get_appoinments_agent)
+    appoinment_agent: ApointmentsAgent = Depends(get_appoinments_agent),
+    calendar_service: CalendarService = Depends(get_google_calendar_service)
 ):
     graph = StateGraph(AppointmentState)
 

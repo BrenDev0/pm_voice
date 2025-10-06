@@ -4,7 +4,7 @@ from workflows.modules.appointments.services.calendar.infrastructure.google.serv
 from src.workflows.modules.appointments.services.calendar.infrastructure.google.services.client_manager import GoogleClientManager
 
 
-def get_calendar_service() -> GoogleCalendarService:
+def get_google_calendar_service() -> GoogleCalendarService:
     return GoogleCalendarService(
         client_manager=Depends(get_client_manager)
     )

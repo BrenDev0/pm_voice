@@ -1,16 +1,24 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
+from uuid import UUID
 
 from src.workflows.core.services.llm.service import LlmService
 from src.workflows.core.services.prompt.service import PromptService
-from workflows.modules.investment_data.models import InvestmentState
+from src.workflows.modules.investment_data.models import InvestmentState
+from src.core.services.web_socket.services.transport import WebSocketTransportService
 
 from  src.core.utils.decorators.error_handler import error_handler
 
 class InvestmentDataAgent:
     __MODULE = "investment_data.agent"
-    def __init__(self, llm_service: LlmService, prompt_service: PromptService):
-        self.llm_service = llm_service
-        self.prompt_service = prompt_service
+    def __init__(
+        self, 
+        llm_service: LlmService, 
+        prompt_service: PromptService,
+        ws_transport_service: WebSocketTransportService
+    ):
+        self.__llm_service = llm_service
+        self.__prompt_service = prompt_service
+        self.__ws_transport_service = ws_transport_service
     
     @error_handler(module=__MODULE)
     async def __get_prompt(
@@ -41,7 +49,7 @@ class InvestmentDataAgent:
 
         """
 
-        prompt = await self.prompt_service.custom_prompt_template(
+        prompt = await self.__prompt_service.custom_prompt_template(
             system_message=system_message,
             with_chat_history=True,
             chat_history=chat_history,
@@ -52,6 +60,7 @@ class InvestmentDataAgent:
     @error_handler(module=__MODULE)
     async def interact(
         self,
+        ws_connection_id: Union[UUID, str],
         state: InvestmentState,
         chat_history: List[Dict[str, Any]]
     ):
@@ -61,15 +70,20 @@ class InvestmentDataAgent:
             state=state
         )
 
-        llm = self.llm_service.get_llm(
+        llm = self.__llm_service.get_llm(
             temperature=1.0
         )
 
         chain = prompt | llm
 
-        response = chain.aivoke({})
-
-        return response
+        chunks = []
+        async for chunk in chain.astream({}):
+            await self.__ws_transport_service.send(
+                connection_id=ws_connection_id,
+                data=chunk
+            )
+        
+        return "".join(chunks)
 
 
 
