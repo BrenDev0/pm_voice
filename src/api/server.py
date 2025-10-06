@@ -5,6 +5,8 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from src.api.modules.interactions import ws
+
 
 
 app = FastAPI()
@@ -23,3 +25,5 @@ app.mount("/public", StaticFiles(directory="src/public"), name="public")
 @app.get("/")
 async def get():
     return FileResponse('src/public/index.html')
+
+app.include_router(ws.router)
