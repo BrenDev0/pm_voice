@@ -2,56 +2,25 @@ import os
 import hmac
 import hashlib
 import time
-from fastapi import Request, HTTPException, status
 
-async def verify_hmac(request: Request) -> bool:
+async def verify_hmac_ws(signature: str, payload: str) -> bool:
     """
-    Verify HMAC signature for incoming requests
-    Use with Depends() on specific routes that need HMAC verification
+    Verify HMAC signature for WebSocket connections.
     """
     secret = os.getenv("HMAC_SECRET")
-    if not secret:
-        raise ValueError("Missing HMAC_SECRET environment variable")
-    
-    signature = request.headers.get('x-signature')
-    payload = request.headers.get('x-payload')
-    
-    if not signature or not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="HMAC verification failed"
-        )
-    
-    # Validate timestamp
+    if not secret or not signature or not payload:
+        return False
     try:
         timestamp = int(payload)
     except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="HMAC verification failed"
-        )
-    
-    current_time = int(time.time() * 1000)  # Current time in milliseconds
-    allowed_drift = 60_000  # 60 seconds
-    
+        return False
+    current_time = int(time.time() * 1000)
+    allowed_drift = 60_000
     if abs(current_time - timestamp) > allowed_drift:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="HMAC verification failed"
-        )
-    
-    # Generate expected signature
+        return False
     expected = hmac.new(
         secret.encode('utf-8'),
         payload.encode('utf-8'),
         hashlib.sha256
     ).hexdigest()
-    
-    # Compare signatures using constant-time comparison
-    if not hmac.compare_digest(signature, expected):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="HMAC verification failed"
-        )
-    
-    return True
+    return hmac.compare_digest(signature, expected)
