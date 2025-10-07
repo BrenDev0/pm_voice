@@ -1,4 +1,4 @@
-from src.workflows.core.services.llm.service import LlmService
+from src.workflows.core.services.llm.domain.llm_service import LlmService
 from src.workflows.core.services.prompt.service import PromptService
 from src.workflows.core.state import State
 from src.workflows.modules.data_collection.models import DataCollectorResponse
@@ -51,11 +51,9 @@ class DataCollector:
         }}
         """
 
-        prompt = await self.prompt_service.custom_prompt_template(
+        prompt = await self.prompt_service.build_prompt(
             system_message=system_message,
-            with_input=True,
-            input_text=state['input'],
-            with_chat_history=True,
+            input=state['input'],
             chat_history=state['chat_history']
         )
 

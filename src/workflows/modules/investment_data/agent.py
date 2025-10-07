@@ -1,8 +1,9 @@
 from typing import List, Dict, Any, Union
 from uuid import UUID
 
-from src.workflows.core.services.llm.service import LlmService
+from src.workflows.core.services.llm.domain.llm_service import LlmService
 from src.workflows.core.services.prompt.service import PromptService
+from src.workflows.core.services.prompt.entities import Message
 from src.workflows.modules.investment_data.models import InvestmentState
 from src.core.services.web_socket.services.transport import WebSocketTransportService
 
@@ -24,7 +25,7 @@ class InvestmentDataAgent:
     async def __get_prompt(
         self,
         state: InvestmentState,
-        chat_history: List[Dict[str, Any]]
+        chat_history: List[Message]
     ):
         missing_data = [key for key, value in state.model_dump().items() if value is None]
         system_message = f"""
@@ -49,9 +50,8 @@ class InvestmentDataAgent:
 
         """
 
-        prompt = await self.__prompt_service.custom_prompt_template(
+        prompt = await self.__prompt_service.build_prompt(
             system_message=system_message,
-            with_chat_history=True,
             chat_history=chat_history,
         )
 
@@ -62,7 +62,7 @@ class InvestmentDataAgent:
         self,
         ws_connection_id: Union[UUID, str],
         state: InvestmentState,
-        chat_history: List[Dict[str, Any]]
+        chat_history: List[Message]
     ):
         
         prompt = await self.__get_prompt(
@@ -70,20 +70,14 @@ class InvestmentDataAgent:
             state=state
         )
 
-        llm = self.__llm_service.get_llm(
+        async for chunk in self.__llm_service.generate_stream(
+            prompt=prompt,
             temperature=1.0
-        )
-
-        chain = prompt | llm
-
-        chunks = []
-        async for chunk in chain.astream({}):
+        ):
             await self.__ws_transport_service.send(
                 connection_id=ws_connection_id,
                 data=chunk
             )
-        
-        return "".join(chunks)
 
 
 
