@@ -2,10 +2,10 @@ from fastapi import APIRouter, WebSocket, status, WebSocketDisconnect, Depends
 from uuid import UUID
 from langgraph.graph.state import CompiledStateGraph
 
-from src.workflows.core.graph import create_graph
+from src.workflows.graph import create_graph
 
-from src.core.services.web_socket.services.connections import WebsocketConnectionsContainer
-from src.api.core.middleware.hmac_verification import verify_hmac_ws
+from src.shared.services.web_socket.services.connections import WebsocketConnectionsContainer
+from src.api.middleware.hmac_verification import verify_hmac_ws
 
 router = APIRouter(
     tags=["WebSocket"]

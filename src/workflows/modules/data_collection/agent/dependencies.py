@@ -2,11 +2,11 @@ from fastapi import Depends
 
 from src.workflows.modules.data_collection.agent.agent import DataCollector
 
-from src.workflows.core.services.llm.domain.llm_service import LlmService
-from src.workflows.core.services.llm.infrastructure.dependencies import get_llm_service
+from src.workflows.services.llm.domain.llm_service import LlmService
+from src.workflows.services.llm.infrastructure.dependencies import get_llm_service
 
-from src.workflows.core.services.prompt.service import PromptService
-from src.workflows.core.services.prompt.dependencies import get_prompt_service
+from src.workflows.services.prompt.service import PromptService
+from src.workflows.services.prompt.dependencies import get_prompt_service
 
 def get_data_collector(
     llm_service: LlmService = Depends(get_llm_service),

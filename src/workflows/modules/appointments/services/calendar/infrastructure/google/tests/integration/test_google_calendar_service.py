@@ -3,11 +3,11 @@ load_dotenv()
 import pytest
 import datetime
 
-from src.core.dependencies.configure_container import configure_container
+from src.shared.dependencies.configure_container import configure_container
 
-from src.workflows.modules.appointments.infrastructure.google.services.google_calendar_serivce import GoogleCalendarService
-from src.workflows.modules.appointments.infrastructure.google.services.client_manager import GoogleClientManager
-from src.workflows.modules.appointments.domain.models import EventData
+from src.workflows.modules.appointments.services.calendar.infrastructure.google.services.google_calendar_serivce import GoogleCalendarService
+from src.workflows.modules.appointments.services.calendar.infrastructure.google.services.client_manager import GoogleClientManager
+from src.workflows.modules.appointments.services.calendar.domain.entities import Event
 
 
 configure_container()
@@ -27,7 +27,7 @@ google_calendar_service = GoogleCalendarService(
 
 @pytest.mark.asyncio
 async def test_create_event():
-    event_data = EventData(
+    event_data = Event(
         title="testing event",
         start=datetime.datetime(year=2025, month=10, day=3, hour=15).isoformat(),
         end=datetime.datetime(year=2025, month=10, day=3, hour=15, minute=30).isoformat(),

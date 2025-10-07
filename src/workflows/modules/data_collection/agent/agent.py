@@ -1,9 +1,9 @@
-from src.workflows.core.services.llm.domain.llm_service import LlmService
-from src.workflows.core.services.prompt.service import PromptService
-from src.workflows.core.state import State
+from src.workflows.services.llm.domain.llm_service import LlmService
+from src.workflows.services.prompt.service import PromptService
+from src.workflows.models import State
 from src.workflows.modules.data_collection.models import DataCollectorResponse
 
-from src.core.utils.decorators.error_handler import error_handler
+from src.shared.utils.decorators.error_handler import error_handler
 
 class DataCollector:
     __MODULE = "data_collector.agent"
