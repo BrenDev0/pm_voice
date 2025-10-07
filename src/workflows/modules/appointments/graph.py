@@ -5,8 +5,8 @@ from src.workflows.modules.appointments.agent.agent import AppointmentsAgent
 from src.workflows.modules.appointments.models import AppointmentState
 from src.workflows.modules.appointments.agent.dependencies import get_appoinments_agent
 
-from src.workflows.modules.appointments.services.calendar.domain.calendar_service import CalendarService
-from src.workflows.modules.appointments.services.calendar.infrastructure.dependencies import get_calendar_service
+from src.workflows.modules.appointments.domain.calendar_service import CalendarService
+from src.workflows.modules.appointments.infrastructure.dependencies import get_calendar_service
 
 def create_appointments_graph(
     appoinment_agent: AppointmentsAgent = Depends(get_appoinments_agent),

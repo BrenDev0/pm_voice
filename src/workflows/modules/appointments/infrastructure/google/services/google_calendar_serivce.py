@@ -1,28 +1,26 @@
 import os
 import datetime
 
-from src.workflows.modules.appointments.services.calendar.domain.entities import Event
-from src.workflows.modules.appointments.services.calendar.domain.calendar_service import CalendarService
-from src.workflows.modules.appointments.services.calendar.infrastructure.google.decorators.errors import google_api_error_handler
-from src.workflows.modules.appointments.services.calendar.infrastructure.google.services.client_manager import GoogleClientManager
+from src.workflows.modules.appointments.domain.entities import Event
+from src.workflows.modules.appointments.domain.calendar_service import CalendarService
+from src.workflows.modules.appointments.infrastructure.google.decorators.errors import google_api_error_handler
+from src.workflows.modules.appointments.infrastructure.google.services.client_manager import GoogleClientManager
 
 
 class GoogleCalendarService(CalendarService):
     __MODULE = "google.service.calendar_service"
     def __init__(
-        self,
-        client_manager: GoogleClientManager
+        self
     ):
         self.calendar_id = os.getenv("GOOGLE_CALENDAR_ID")
-        self.__client_manager = client_manager
         self.__service_key = "canlendar"
 
 
     @google_api_error_handler(module=__MODULE)
-    def get_events(
+    async def get_events(
         self,
     ):
-        service = self.__client_manager.build_service(
+        service = await GoogleClientManager.build_service(
             service_key = self.__service_key
         )
 
@@ -47,11 +45,11 @@ class GoogleCalendarService(CalendarService):
         return events
     
     @google_api_error_handler(module=__MODULE)
-    def create_event(
+    async def create_event(
         self,
         event: Event
     ):
-        service = self.__client_manager.build_service(service_name=self.__service_key)
+        service =  await GoogleClientManager.build_service(service_name=self.__service_key)
   
         event_data = {
             'summary': event.title,
