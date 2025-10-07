@@ -1,6 +1,9 @@
 # src/workflows/core/services/llm/domain/llm_service.py
 from abc import ABC, abstractmethod
-from typing import AsyncGenerator, Dict, Any, List
+from typing import AsyncGenerator, Type, TypeVar
+from pydantic import BaseModel
+
+T = TypeVar('T', bound=BaseModel)
 
 class LlmService(ABC):
     @abstractmethod
@@ -19,4 +22,14 @@ class LlmService(ABC):
         temperature: float = 0.7,
         max_tokens: int = None
     ) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def invoke_structured(
+        self,
+        prompt: str,
+        response_model: Type[T],
+        temperature: float = 0.7,
+        max_tokens: int = None
+    ) -> T:
         raise NotImplementedError

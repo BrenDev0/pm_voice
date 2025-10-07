@@ -7,9 +7,13 @@ from src.core.utils.decorators.error_handler import error_handler
 
 class DataCollector:
     __MODULE = "data_collector.agent"
-    def __init__(self, llm_service: LlmService, prompt_service: PromptService):
-        self.llm_service = llm_service
-        self.prompt_service = prompt_service
+    def __init__(
+        self, 
+        llm_service: LlmService, 
+        prompt_service: PromptService
+    ):
+        self.__llm_service = llm_service
+        self.__prompt_service = prompt_service
     
     @error_handler(module=__MODULE)
     async def __get_prompt(
@@ -51,7 +55,7 @@ class DataCollector:
         }}
         """
 
-        prompt = await self.prompt_service.build_prompt(
+        prompt = await self.__prompt_service.build_prompt(
             system_message=system_message,
             input=state['input'],
             chat_history=state['chat_history']
@@ -67,15 +71,11 @@ class DataCollector:
         
         prompt = await self.__get_prompt(state=state)
 
-        llm = self.llm_service.get_llm(
-            temperature=1.0
+        response = self.__llm_service.invoke_structured(
+            prompt=prompt,
+            response_model=DataCollectorResponse,
+            temperature=0.0
         )
-
-        structured_llm = llm.with_structured_output(DataCollectorResponse)
-
-        chain = prompt | structured_llm
-
-        response = chain.aivoke({"input": state["input"]})
 
         return response
 

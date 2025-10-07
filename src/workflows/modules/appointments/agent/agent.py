@@ -9,8 +9,8 @@ from src.workflows.modules.client_data.models import ClientState
 from src.core.services.web_socket.services.transport import WebSocketTransportService
 from src.core.utils.decorators.error_handler import error_handler
 
-class ClientDataAgent:
-    __MODULE = "client_data.agent"
+class AppointmentsAgent:
+    __MODULE = "appointments.agent"
     
     def __init__(
         self, 

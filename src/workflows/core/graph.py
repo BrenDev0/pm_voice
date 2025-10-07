@@ -6,12 +6,12 @@ from langgraph.graph.state import CompiledStateGraph
 from src.workflows.core.state import State
 
 from src.workflows.modules.appointments.graph import create_appointments_graph
-from src.workflows.modules.data_collection.agent import DataCollector
-from src.workflows.modules.data_collection.dependencies import get_data_collector
-from src.workflows.modules.client_data.agent import ClientDataAgent
-from src.workflows.modules.client_data.dependencies import get_client_data_agent
-from src.workflows.modules.investment_data.agent import InvestmentDataAgent
-from src.workflows.modules.investment_data.dependencies  import get_iventstment_data_agent
+from src.workflows.modules.data_collection.agent.agent import DataCollector
+from src.workflows.modules.data_collection.agent.dependencies import get_data_collector
+from src.workflows.modules.client_data.agent.agent import ClientDataAgent
+from src.workflows.modules.client_data.agent.dependencies import get_client_data_agent
+from src.workflows.modules.investment_data.agent.agent import InvestmentDataAgent
+from src.workflows.modules.investment_data.agent.dependencies  import get_iventstment_data_agent
 
 def create_graph(
     appointments_subgraph: CompiledStateGraph = Depends(create_appointments_graph),
