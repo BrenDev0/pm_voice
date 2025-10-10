@@ -1,62 +1,123 @@
 import asyncio
-from typing import AsyncIterable, Any
+from typing import Any, Dict
 import base64
-from  deepgram import DeepgramClient, LiveTranscriptionEvents 
+import os
+from deepgram import DeepgramClient
+from deepgram.core.events import EventType
+from deepgram.extensions.types.sockets import ListenV1SocketClientResponse
+#### https://github.com/deepgram/deepgram-python-sdk/blob/main/docs/Migrating-v3-to-v5.md#installation-changes
+
 from src.shared.services.speech.domain.speech_to_text import SpeechToText
-from src.shared.services.speech.infrastructure.deepgram_ws_methods import (
-    on_close, on_error, on_open, get_options, get_connection
-)
 
 class DeepgramSpeechToTextService(SpeechToText):
-    def __init__(
-        self,
-        model: str = "nova",
-        language: str = "es"
-    ):
+    def __init__(self, model: str = "nova-2", language: str = "es"):
         super().__init__()
+        self.__model = model
+        self.__language = language
+        self.active_sessions: Dict[str, Any] = {}
+
+    async def start_transcription_session(self, websocket):
+        client = DeepgramClient()
+        session_id = f"session_{id(websocket)}"
         
-        self.__options = get_options(
-            model=model,
-            language=language
-        )
+        try:
 
-    async def transcribe(self, data_stream: AsyncIterable[bytes]) -> str:
-        dg_connection = get_connection()
+            session_data = {
+                "connection": connection,
+                "transcript_parts": [],
+                "websocket": websocket,
+                "client": client
+            }
+
+            with client.listen.v2.connect(
+                model="flux-general-en",
+                encoding="linear16",
+                sample_rate="16000"
+            ) as connection:
+                def on_message(message):
+                    print(f"Received {message.type} event")
+
+                connection.on(EventType.OPEN, lambda _: print("Connection opened"))
+                connection.on(EventType.MESSAGE, on_message)
+                connection.on(EventType.CLOSE, lambda _: print("Connection closed"))
+                connection.on(EventType.ERROR, lambda error: print(f"Error: {error}"))
+
+                connection.start_listening()
+
+            # def on_message(self, result, **kwargs):
+            #     sentence = result.channel.alternatives[0].transcript
+            #     if sentence and len(sentence) > 0:
+            #         print(f"🎤 {sentence}")
+            #         session_data["transcript_parts"].append(sentence)
+            #         asyncio.create_task(websocket.send_json({
+            #             "type": "partial_transcription",
+            #             "text": sentence,
+            #             "is_final": True
+            #         }))
+
+            # self.active_sessions[session_id] = session_data
+            # return session_id
+
+        except Exception as e:
+            print(f"ERROR starting session: {e}")
+            return None
+
+    async def send_audio_chunk(self, session_id: str, audio_data: str):
+        print("sending")
+        if session_id not in self.active_sessions:
+            return
         
-        if not dg_connection.start(self.__options):
-            raise Exception("Error connecting to deepgram")
+        session = self.active_sessions[session_id]
+        print("session found")
+        connection = session["connection"]
         
-        print("Deepgram connection started")
+        try:
+            audio_bytes = self.get_audio_bytes(audio_data)
+            if audio_bytes:
+                connection.send(audio_bytes)
+        except Exception as e:
+            print(f"Error sending chunk: {e}")
 
-        chunks = []
-        finished = asyncio.Event()
+    async def end_transcription_session(self, session_id: str) -> str:
+        if session_id not in self.active_sessions:
+            return ""
+        
+        session = self.active_sessions[session_id]
+        connection = session["connection"]
+        transcript_parts = session["transcript_parts"]
+        
+        try:
+            connection.finish()  
+            await asyncio.sleep(1)
+            
+            full_transcript = " ".join(transcript_parts)
+            
+            del self.active_sessions[session_id]
+            
+            return full_transcript
+            
+        except Exception as e:
+            print(f"Error ending session: {e}")
+            return " ".join(transcript_parts)
 
-        def on_transcript(result):
-            sentence = result.channel.alternatives[0].transcript
-            if sentence and len(sentence) > 0:
-                print(f"Transcript: {sentence}")
-                chunks.append(sentence)
+    async def cleanup_session(self, session_id: str):
 
-        def on_close_event(*args, **kwargs):
-            print("Deepgram connection closed")
-            finished.set()
+        if session_id in self.active_sessions:
+            try:
+                session = self.active_sessions[session_id]
+                session["connection"].finish()
+                del self.active_sessions[session_id]
+            except Exception as e:
+                print(f"Error cleaning up session: {e}")
 
-        dg_connection.on(LiveTranscriptionEvents.Open, on_open)
-        dg_connection.on(LiveTranscriptionEvents.Transcript, on_transcript)
-        dg_connection.on(LiveTranscriptionEvents.Error, on_error)
-        dg_connection.on(LiveTranscriptionEvents.Close, on_close_event)
-
-        # Send audio data as it arrives
-        async for data in data_stream:
-            chunk = self.__get_audio_bytes(data)
-            dg_connection.send(chunk)
-
-        dg_connection.finish()
-        await finished.wait()
-
-        return " ".join(chunks)
-
-    def __get_audio_bytes(data: Any):
-        audio_data = data.get("data")
-        audio_bytes = base64.b64decode(audio_data)
-        return audio_bytes
+    def get_audio_bytes(self, data: Any) -> bytes:
+        try:
+            if isinstance(data, str):
+                return base64.b64decode(data)
+            elif isinstance(data, bytes):
+                return data
+            else:
+                return b""
+        except Exception as e:
+            print(f"Error decoding audio: {e}")
+            return b""

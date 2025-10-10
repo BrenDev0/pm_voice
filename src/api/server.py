@@ -33,47 +33,63 @@ app.mount("/public", StaticFiles(directory="src/public"), name="public")
 async def get():
     return FileResponse('src/public/index.html')
 
-@app.websocket("/ws/{connection_id}")
+@app.websocket("/ws")
 async def websocket_interact(
-    websocket: WebSocket, 
-    chat_id: UUID,
+    websocket: WebSocket,
     speech_to_text_service: SpeechToText = Depends(get_speech_to_text_service),
     graph: CompiledStateGraph = Depends(create_graph)
 ):
     await websocket.accept()
-    params = websocket.query_params
-    signature = params.get("x-signature")
-    payload = params.get("x-payload")
+    # params = websocket.query_params
+    # signature = params.get("x-signature")
+    # payload = params.get("x-payload")
 
-    if not await verify_hmac_ws(signature, payload):
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        return
+    # if not await verify_hmac_ws(signature, payload):
+    #     await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+    #     return
 
-    WebsocketConnectionsContainer.register_connection(chat_id, websocket)
+
+    # params = websocket.query_params
+    # connection_id = params.get("connection_id", connection_id)
     
-    print(f'Websocket connection: {chat_id} opened.')
+    # if not connection_id:
+    #     await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Missing connection_id")
+    #     return
+    
 
-    audio_chunks = []
+    # WebsocketConnectionsContainer.register_connection(connection_id, websocket)
+    
+    # print(f'Websocket connection: {connection_id} opened.')
+    print("connection opened")
+    transcription_session = None
+    full_transcript = []
+    
     try:
         while True: 
-            message = await websocket.receive_text()
-            data = json.loads(message)
-            message_type = data.get("type")
-
-            if message_type == "audio_chunk":
-                audio_chunks.append(audio_chunks)
-            else: 
-                websocket.send_json("Unsuppoerted content")
-            
-            if audio_chunks:
-                async def audio_stream():
-                    for chunk in audio_chunks:
-                        yield chunk
-                
-                transcribed_text = await speech_to_text_service.transcribe(audio_stream())
-                
+            message = await websocket.receive()
+            if "bytes" in message:
+                # This is a raw audio chunk
+                if transcription_session:
+                    print("SEND")
+                    print("::::::::::: received audio chunk")
+                    await speech_to_text_service.send_audio_chunk(transcription_session, message["bytes"])
+            elif "text" in message:
+                # This is a JSON control message
+                data = json.loads(message["text"])
+                message_type = data.get("type")
+                if message_type == "audio_start":
+                    print("START")
+                    transcription_session = await speech_to_text_service.start_transcription_session(websocket)
+                elif message_type == "audio_end":
+                    await speech_to_text_service.end_transcription_session(transcription_session)
+                    
+                    transcription_session = None
 
     except WebSocketDisconnect:
-        print(transcribed_text, "::::Text:::::::::::")
-        WebsocketConnectionsContainer.remove_connection(chat_id)
-        print(f'Websocket connection: {chat_id} closed.')
+        if transcription_session:
+            await speech_to_text_service.cleanup_session(transcription_session)
+        print("Connection closed")
+    except Exception as e:
+        print("ERROR::::::", e)
+        if transcription_session:
+            await speech_to_text_service.cleanup_session(transcription_session)

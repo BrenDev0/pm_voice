@@ -41,3 +41,21 @@ class LangchainLlmService(LlmService):
         )
         response = await llm.ainvoke(prompt)
         return response.content.strip()
+    
+    async def invoke_structured(
+            self, 
+            prompt: str, 
+            response_model, 
+            temperature: float = 0.7, 
+            max_tokens: int = None
+        ):
+        llm = ChatOpenAI(
+            model=self.model,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+
+        structured_llm = llm.with_structured_output(response_model)
+        response = await structured_llm.ainvoke(prompt)
+        return response.content.strip()
+        

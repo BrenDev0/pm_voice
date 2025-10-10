@@ -7,4 +7,7 @@ def get_ws_transport_service() -> WebSocketTransportService:
 
 
 def get_speech_to_text_service():
-    return DeepgramSpeechToTextService()
+    return DeepgramSpeechToTextService(
+        model="nova",
+        language="es"
+    )

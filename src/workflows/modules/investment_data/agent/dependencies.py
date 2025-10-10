@@ -9,7 +9,7 @@ from src.workflows.services.prompt.service import PromptService
 from src.workflows.services.llm.infrastructure.dependencies import get_llm_service
 
 from src.shared.services.web_socket.services.transport import WebSocketTransportService
-from src.shared.services.web_socket.dependencies import get_ws_transport_service
+from src.shared.dependencies.services import get_ws_transport_service
 
 def get_iventstment_data_agent(
     llm_service: LlmService = Depends(get_llm_service),

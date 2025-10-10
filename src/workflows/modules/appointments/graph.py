@@ -26,13 +26,19 @@ def create_appointments_graph(
         return {"appointment_datetime": response}
 
     async def check_availability_node(state: AppointmentState) -> bool:
-        pass
+        return True
+    
+    def availability_router(state: AppointmentState):
+        if state.date_available:
+            return "confirmation"
+        else:
+            return "unavailable"
 
     async def unavailable_node(state: AppointmentState):
-        pass
+        return "not availbale"
 
     async def confirmation_node(state: AppointmentState):
-        pass
+        return "confirmed"
 
    
     graph.add_node("get_datetime", get_datetime_node)
@@ -51,11 +57,14 @@ def create_appointments_graph(
 
     graph.add_conditional_edges(
         "check_availability",
+        availability_router,
         {
-            True: "confirmation",
-            False: "unavailable"
+            "confirmation": "confirmation",
+            "not availbale": "unavailable"
         }
     )
+
+    graph.add_edge("get_datetime", "check_availability") 
 
     graph.add_edge("confirmation", END)
 
