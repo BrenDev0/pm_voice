@@ -1,21 +1,29 @@
 import asyncio
-from typing import AsyncIterable
-from deepgram import LiveTranscriptionEvents
-
+from typing import AsyncIterable, Any
+import base64
+from  deepgram import DeepgramClient, LiveTranscriptionEvents 
 from src.shared.services.speech.domain.speech_to_text import SpeechToText
-from src.shared.services.speech.infrastructure.deepgram.utils.deepgram_ws_methods import (
+from src.shared.services.speech.infrastructure.deepgram_ws_methods import (
     on_close, on_error, on_open, get_options, get_connection
 )
 
 class DeepgramSpeechToTextService(SpeechToText):
-    async def transcribe(data_stream: AsyncIterable[bytes]) -> str:
-        dg_connection = get_connection()
-        options = get_options(
-            model="nova",
-            language="es"
+    def __init__(
+        self,
+        model: str = "nova",
+        language: str = "es"
+    ):
+        super().__init__()
+        
+        self.__options = get_options(
+            model=model,
+            language=language
         )
 
-        if not dg_connection.start(options):
+    async def transcribe(self, data_stream: AsyncIterable[bytes]) -> str:
+        dg_connection = get_connection()
+        
+        if not dg_connection.start(self.__options):
             raise Exception("Error connecting to deepgram")
         
         print("Deepgram connection started")
@@ -39,10 +47,16 @@ class DeepgramSpeechToTextService(SpeechToText):
         dg_connection.on(LiveTranscriptionEvents.Close, on_close_event)
 
         # Send audio data as it arrives
-        async for chunk in data_stream:
+        async for data in data_stream:
+            chunk = self.__get_audio_bytes(data)
             dg_connection.send(chunk)
 
         dg_connection.finish()
         await finished.wait()
 
         return " ".join(chunks)
+
+    def __get_audio_bytes(data: Any):
+        audio_data = data.get("data")
+        audio_bytes = base64.b64decode(audio_data)
+        return audio_bytes
