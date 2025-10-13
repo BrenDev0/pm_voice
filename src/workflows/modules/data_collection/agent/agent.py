@@ -71,7 +71,7 @@ class DataCollector:
         
         prompt = await self.__get_prompt(state=state)
 
-        response = self.__llm_service.invoke_structured(
+        response = await self.__llm_service.invoke_structured(
             prompt=prompt,
             response_model=DataCollectorResponse,
             temperature=0.0

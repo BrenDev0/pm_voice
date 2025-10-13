@@ -75,9 +75,13 @@ class ClientDataAgent:
             prompt=prompt,
             temperature=1.0
         ):
+            print(chunk)
             await self.__ws_transport_service.send(
                 connection_id=ws_connection_id,
-                data=chunk
+                data={
+                    "type": "transcription",
+                    "text": chunk
+                }
             )
 
 

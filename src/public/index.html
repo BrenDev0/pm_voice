@@ -7,6 +7,7 @@
     <h1>WebSocket Audio Streaming Test</h1>
     <button id="startBtn">Start Recording</button>
     <button id="stopBtn" disabled>Stop Recording</button>
+    <button id="closeBtn" disabled>close web socket</button>
     <div id="transcript"></div>
     <div id="status"></div>
 
@@ -16,6 +17,7 @@
 
         document.getElementById('startBtn').addEventListener('click', startRecording);
         document.getElementById('stopBtn').addEventListener('click', stopRecording);
+        document.getElementById('closeBtn').addEventListener('click', closeWs);
 
         async function startRecording() {
             try {
@@ -42,6 +44,7 @@
                     
                     document.getElementById('startBtn').disabled = true;
                     document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('closeBtn').disabled = false;
                     document.getElementById('status').innerHTML = '<p>Recording...</p>';
                 };
 
@@ -91,13 +94,14 @@
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
             document.getElementById('status').innerHTML = '<p>Processing audio...</p>';
-            
-            // Note: Don't close the socket immediately, let the server process the audio first
-            setTimeout(() => {
-                if (socket) {
-                    socket.close();
-                }
-            }, 2000); // Wait 2 seconds before closing
+        }
+
+        function closeWs() {
+             // Close the socket IMMEDIATELY - don't wait for onstop
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                
+                socket.close(); // Close immediately after sending
+            }
         }
     </script>
 </body>

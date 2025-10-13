@@ -9,8 +9,10 @@ from uuid import UUID
 import json
 from langgraph.graph.state import CompiledStateGraph
 import base64
-from src.workflows.graph import create_graph
 
+
+from src.workflows.models import State
+from src.workflows.graph import create_graph
 from src.shared.services.web_socket.services.connections import WebsocketConnectionsContainer
 from src.api.middleware.hmac_verification import verify_hmac_ws
 from src.shared.services.speech.domain.speech_to_text import SpeechToText
@@ -57,7 +59,7 @@ async def websocket_interact(
     #     return
     
 
-    # WebsocketConnectionsContainer.register_connection(connection_id, websocket)
+    WebsocketConnectionsContainer.register_connection(1, websocket)
     
     # print(f'Websocket connection: {connection_id} opened.')
     print("connection opened")
@@ -79,11 +81,25 @@ async def websocket_interact(
                 message_type = data.get("type")
                 if message_type == "audio_start":
                     print("START")
-                    transcription_session = await speech_to_text_service.start_transcription_session(websocket)
+                    transcription_session = await speech_to_text_service.start_transcription_session()
                 elif message_type == "audio_end":
-                    await speech_to_text_service.end_transcription_session(transcription_session)
-                    
+                    print("audio end")
+                    transcription = await speech_to_text_service.end_transcription_session(transcription_session)
                     transcription_session = None
+                    state = State(
+                        call_id=1,
+                        input=transcription,
+                        chat_history=[],
+                        summary="",
+                        investment_data=None,
+                        client_data=None,
+                        appointment_data=None
+                    )
+
+                    print(state["input"], "INPUT::::::::::::")
+                    final_state = await graph.ainvoke(state)
+                    print("final state", final_state)
+
 
     except WebSocketDisconnect:
         if transcription_session:

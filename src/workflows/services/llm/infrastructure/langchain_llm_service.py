@@ -57,5 +57,5 @@ class LangchainLlmService(LlmService):
 
         structured_llm = llm.with_structured_output(response_model)
         response = await structured_llm.ainvoke(prompt)
-        return response.content.strip()
+        return response
         

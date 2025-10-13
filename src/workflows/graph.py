@@ -37,6 +37,7 @@ def create_graph(
 
     async def client_data_node(state: State):
         await client_data_agent.interact(
+            ws_connection_id=1,
             state=state["client_data"],
             chat_history=state["chat_history"]
         )
@@ -51,6 +52,7 @@ def create_graph(
         return state
     
     def router(state: State):
+        print(state, "RESSSSS  STATE")
         client_data = state["client_data"].model_dump()
         investment_data = state["investment_data"].model_dump()
         apppointment_data = state["appointment_data"].model_dump()
