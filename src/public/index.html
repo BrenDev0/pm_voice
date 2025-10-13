@@ -5,6 +5,7 @@
 </head>
 <body>
     <h1>WebSocket Audio Streaming Test</h1>
+    <button id="openBtn">open connection</button>
     <button id="startBtn">Start Recording</button>
     <button id="stopBtn" disabled>Stop Recording</button>
     <button id="closeBtn" disabled>close web socket</button>
@@ -17,34 +18,20 @@
         let audioQueue = [];
         let isPlayingAudio = false;
 
+        document.getElementById('openBtn').addEventListener('click', openConnection);
         document.getElementById('startBtn').addEventListener('click', startRecording);
         document.getElementById('stopBtn').addEventListener('click', stopRecording);
         document.getElementById('closeBtn').addEventListener('click', closeWs);
 
-        async function startRecording() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        sampleRate: 16000,
-                        channelCount: 1
-                    }
-                });
-                
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-                
+        async function openConnection() {
+            try { 
                 // Connect to WebSocket
                 socket = new WebSocket('ws://localhost:8000/ws');
                 
                 socket.onopen = () => {
                     console.log('WebSocket connected');
                     
-                    // Send start signal
-                    socket.send(JSON.stringify({ type: 'audio_start' }));
-                    
-                    // Start recording
-                    mediaRecorder.start(1000); // Send chunks every second
-                    
-                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('opneBtn').disabled = true;
                     document.getElementById('stopBtn').disabled = false;
                     document.getElementById('closeBtn').disabled = false;
                     document.getElementById('status').innerHTML = '<p>Recording...</p>';
@@ -71,6 +58,31 @@
                 socket.onerror = (error) => {
                     console.error('WebSocket error:', error);
                 };
+            } catch (error) {
+                console.error('Error starting recording:', error);
+                document.getElementById('status').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        sampleRate: 16000,
+                        channelCount: 1
+                    }
+                });
+                
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                socket.send(JSON.stringify({ type: 'audio_start' }));
+                mediaRecorder.start(1000); // Send chunks every second
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('closeBtn').disabled = false;
+                document.getElementById('status').innerHTML = '<p>Recording...</p>';
+            
 
                 mediaRecorder.ondataavailable = (event) => {
                     if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {

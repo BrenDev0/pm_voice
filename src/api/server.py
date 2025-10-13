@@ -75,7 +75,6 @@ async def websocket_interact(
     # print(f'Websocket connection: {connection_id} opened.')
     print("connection opened")
     transcription_session = None
-    full_transcript = []
     try:
         while True: 
             message = await websocket.receive()
@@ -102,8 +101,8 @@ async def websocket_interact(
                     final_state = await graph.ainvoke(state)
                     final_state["chat_history"].append({"human": final_state["input"]})
                     final_state["chat_history"].append({"ai": final_state["response"]})
-                    print("::::::::::::::::::final state", final_state)
                     state = final_state
+                    print("::::::::::::::::::final state", state)
 
 
     except WebSocketDisconnect:
