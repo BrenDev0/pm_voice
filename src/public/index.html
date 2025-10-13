@@ -14,6 +14,8 @@
     <script>
         let mediaRecorder;
         let socket;
+        let audioQueue = [];
+        let isPlayingAudio = false;
 
         document.getElementById('startBtn').addEventListener('click', startRecording);
         document.getElementById('stopBtn').addEventListener('click', stopRecording);
@@ -51,6 +53,12 @@
                 socket.onmessage = (event) => {
                     const data = JSON.parse(event.data);
                     
+                    if (data.type === 'audio_response' && data.audio_data) {
+                        // Add audio chunk to queue
+                        audioQueue.push(data.audio_data);
+                        playNextAudio();
+                    }
+
                     if (data.type === 'transcription') {
                         document.getElementById('transcript').innerHTML += `<p><strong>Transcription:</strong> ${data.text}</p>`;
                     } else if (data.type === 'status') {
@@ -102,6 +110,35 @@
                 
                 socket.close(); // Close immediately after sending
             }
+        }
+
+        function playNextAudio() {
+            if (isPlayingAudio || audioQueue.length === 0) return;
+
+            isPlayingAudio = true;
+            const audioData = audioQueue.shift();
+
+            // Decode base64 audio data to ArrayBuffer
+            const audioBuffer = Uint8Array.from(atob(audioData), c => c.charCodeAt(0)).buffer;
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            audioCtx.decodeAudioData(audioBuffer, (buffer) => {
+                const source = audioCtx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioCtx.destination);
+
+                // When playback ends, play the next audio in the queue
+                source.onended = () => {
+                    isPlayingAudio = false;
+                    playNextAudio();
+                };
+
+                source.start(0);
+            }, (err) => {
+                console.error('Error decoding audio:', err);
+                isPlayingAudio = false;
+                playNextAudio();
+            });
         }
     </script>
 </body>

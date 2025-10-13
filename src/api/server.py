@@ -35,6 +35,8 @@ app.mount("/public", StaticFiles(directory="src/public"), name="public")
 async def get():
     return FileResponse('src/public/index.html')
 
+
+
 @app.websocket("/ws")
 async def websocket_interact(
     websocket: WebSocket,
@@ -42,6 +44,15 @@ async def websocket_interact(
     graph: CompiledStateGraph = Depends(create_graph)
 ):
     await websocket.accept()
+    state = State(
+        call_id=1,
+        input="",
+        chat_history=[],
+        summary=None,
+        investment_data=None,
+        client_data=None,
+        appointment_data=None
+    )
     # params = websocket.query_params
     # signature = params.get("x-signature")
     # payload = params.get("x-payload")
@@ -65,40 +76,34 @@ async def websocket_interact(
     print("connection opened")
     transcription_session = None
     full_transcript = []
-    
     try:
         while True: 
             message = await websocket.receive()
             if "bytes" in message:
-                # This is a raw audio chunk
                 if transcription_session:
                     print("SEND")
-                    print("::::::::::: received audio chunk")
                     await speech_to_text_service.send_audio_chunk(transcription_session, message["bytes"])
+
             elif "text" in message:
-                # This is a JSON control message
                 data = json.loads(message["text"])
                 message_type = data.get("type")
+
                 if message_type == "audio_start":
                     print("START")
                     transcription_session = await speech_to_text_service.start_transcription_session()
+
                 elif message_type == "audio_end":
                     print("audio end")
                     transcription = await speech_to_text_service.end_transcription_session(transcription_session)
                     transcription_session = None
-                    state = State(
-                        call_id=1,
-                        input=transcription,
-                        chat_history=[],
-                        summary="",
-                        investment_data=None,
-                        client_data=None,
-                        appointment_data=None
-                    )
-
-                    print(state["input"], "INPUT::::::::::::")
+                    state["input"] = transcription
+                    state["response"] = ""
+                    print("STARTING STATE:::::::::::::::", state)
                     final_state = await graph.ainvoke(state)
-                    print("final state", final_state)
+                    final_state["chat_history"].append({"human": final_state["input"]})
+                    final_state["chat_history"].append({"ai": final_state["response"]})
+                    print("::::::::::::::::::final state", final_state)
+                    state = final_state
 
 
     except WebSocketDisconnect:

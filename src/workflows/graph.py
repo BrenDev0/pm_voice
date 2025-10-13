@@ -36,12 +36,12 @@ def create_graph(
         return {"appointment_data": appointments_state}
 
     async def client_data_node(state: State):
-        await client_data_agent.interact(
+        res = await client_data_agent.interact(
             ws_connection_id=1,
             state=state["client_data"],
             chat_history=state["chat_history"]
         )
-        return state
+        return {"response": res}
     
     async def investment_data_node(state: State):
         await investment_data_agent.interact(

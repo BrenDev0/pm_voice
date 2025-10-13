@@ -5,11 +5,9 @@ from src.workflows.services.llm.domain.llm_service import LlmService
 from src.workflows.services.prompt.service import PromptService
 from src.workflows.services.prompt.entities import Message
 from src.workflows.modules.client_data.models import ClientState
-from src.shared.services.web_socket.services.transport import WebSocketTransportService
+from src.shared.application.use_cases.stream_tts import StreamTTS
 
 from src.shared.utils.decorators.error_handler import error_handler
-
-
 
 class ClientDataAgent:
     __MODULE = "client_data.agent"
@@ -17,11 +15,11 @@ class ClientDataAgent:
         self, 
         llm_service: LlmService, 
         prompt_service: PromptService,
-        ws_transport_service: WebSocketTransportService
+        stream_tts: StreamTTS
     ):
         self.__llm_service = llm_service
         self.__prompt_service = prompt_service
-        self.__ws_transport_service = ws_transport_service
+        self.__stream_tts = stream_tts
 
     @error_handler(module=__MODULE)  
     async def __get_prompt(
@@ -70,19 +68,33 @@ class ClientDataAgent:
             chat_history=chat_history,
             state=state
         )
- 
+        chunks = []
+        sentence = ""
         async for chunk in self.__llm_service.generate_stream(
             prompt=prompt,
             temperature=1.0
         ):
-            print(chunk)
-            await self.__ws_transport_service.send(
-                connection_id=ws_connection_id,
-                data={
-                    "type": "transcription",
-                    "text": chunk
-                }
+            chunks.append(chunk)
+            sentence += chunk
+            # Check for sentence-ending punctuation
+            if any(p in chunk for p in [".", "?", "!"]) and len(sentence) > 10:
+                await self.__stream_tts.execute(
+                    ws_connection_id=ws_connection_id,
+                    text=sentence.strip()
+                )
+                sentence = ""
+
+        # Send any remaining text after the stream ends
+        if sentence.strip():
+            await self.__stream_tts.execute(
+                ws_connection_id=ws_connection_id,
+                text=sentence.strip()
             )
+            
+        return "".join(chunks)
+
+    
+        
 
 
 

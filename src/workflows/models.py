@@ -10,6 +10,7 @@ class State(TypedDict):
     input: str
     chat_history: List[Dict[str, Any]]
     summary: str
+    response: str
     investment_data: InvestmentState
     client_data: ClientState
     appointment_data: AppointmentState
