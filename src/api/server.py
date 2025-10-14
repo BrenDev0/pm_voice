@@ -111,7 +111,7 @@ async def websocket_interact(
                         input=transcription
                     )
 
-                    with open("./src/public/keyboard-typing-fast-381781.mp3", "rb") as f:
+                    with open("./src/public/keyboard-typing-329937.mp3", "rb") as f:
                         audio_bytes = f.read()
                     audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
 
