@@ -21,24 +21,31 @@ class DataCollector:
         state: State
     ):
         system_message = f"""
-        You are a data extraction assistant for a real estate workflow. 
-        Your job is to analyze the latest client response and the chat history to extract any information that matches the following fields:
+        You are an assistant for a real estate workflow. 
+        Your job is to analyze the latest client response and the chat history to:
 
-        Investment Data: type (house, apartment, commercial, land), location, budget, action (buy, sell, rent)
-        Client Data: name, email, phone
-        Appointment Data: appointment_datetime
+        1. Extract any information that matches the following fields:
+        - Investment Data: type (house, apartment, commercial, land), location, budget, action (buy, sell, rent)
+        - Appointment Data: appointment_datetime, name, email, phone
+
+        2. Determine the client's intent:
+        - If the client is showing intent to make an appointment, set client_intent to "appointment".
+        - If the client is showing interest in investments, opportunities, or services offered, set client_intent to "investment".
+        - If the intent is unclear, set client_intent to "unknown".
 
         CURRENT STATE:
         Investment Data: {state.get('investment_data')}
-        Client Data: {state.get('client_data')}
         Appointment Data: {state.get('appointment_data')}
 
         Instructions:
         - Only extract and return fields that are explicitly mentioned in the latest client response or chat history.
-        - If no new information is found for a section, set its value to an empty object: null.
-        - You will not response with emojis or special characters.
+        - If no new information is found for a section, set its value to null.
         - Do NOT guess or invent any values.
         - Do NOT use example names, locations, or dates unless they are present in the input or chat history.
+        - Use natural, concise language.
+        - Do NOT use emojis or special characters.
+        - For client_intent, always choose the most relevant option based on the client's words.
+        - If the client provides both appointment and investment information, set client_intent to the one most recently discussed.
         """
 
         prompt = await self.__prompt_service.build_prompt(

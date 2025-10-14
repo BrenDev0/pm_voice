@@ -2,7 +2,7 @@ from langgraph.graph import  StateGraph, START, END
 from  fastapi import Depends
 
 from src.workflows.modules.appointments.agent.agent import AppointmentsAgent
-from src.workflows.modules.appointments.models import AppointmentState
+from src.workflows.modules.appointments.domain.models import AppointmentState
 from src.workflows.modules.appointments.agent.dependencies import get_appoinments_agent
 
 from src.workflows.modules.appointments.domain.calendar_service import CalendarService

@@ -11,6 +11,8 @@ import json
 from langgraph.graph.state import CompiledStateGraph
 import base64
 
+from src.shared.application.use_cases.stream_tts import StreamTTS
+from src.shared.dependencies.services import get_stream_tts_use_case
 from src.shared.dependencies.configure_container import configure_container
 from src.api.services.state_service import StateService
 from src.workflows.graph import create_graph
@@ -50,7 +52,8 @@ async def websocket_interact(
     connection_id: UUID,
     websocket: WebSocket,
     speech_to_text_service: SpeechToText = Depends(get_speech_to_text_service),
-    graph: CompiledStateGraph = Depends(create_graph)
+    graph: CompiledStateGraph = Depends(create_graph),
+    greeting: StreamTTS = Depends(get_stream_tts_use_case)
 ):
     await websocket.accept()
     
@@ -63,18 +66,26 @@ async def websocket_interact(
     #     return
 
     connection_id = params.get("connection_id", connection_id)
-    
-    # if not connection_id:
-    #     await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Missing connection_id")
-    #     return
+    if not connection_id:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Missing connection_id")
+        return
     
 
     WebsocketConnectionsContainer.register_connection(connection_id, websocket)
     
     print(f'Websocket connection: {connection_id} opened.')
-  
+    
+
+    await greeting.execute(
+        ws_connection_id=connection_id,
+        text="""
+        Gracias para llamar Propiedades  mérida! ¿En cómo te puedo ayudar?
+        """ 
+    )
+    
     transcription_session = None
     state = StateService.get_new_state(connection_id)
+    
     try:
         while True: 
             message = await websocket.receive()

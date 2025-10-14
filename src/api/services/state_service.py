@@ -37,9 +37,9 @@ class StateService:
             input=input,
             chat_history=[],
             summary="",
-            investment_data=None,
-            client_data=None,
-            appointment_data=None,
+            investment_data={},
+            client_data={},
+            appointment_data={},
             response=None
         )
 

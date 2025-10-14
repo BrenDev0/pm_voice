@@ -3,6 +3,9 @@ from typing import Optional
 from datetime import datetime
 
 class AppointmentState(BaseModel):
-    appointment_datetime: Optional[datetime] = None,
+    name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    appointment_datetime: Optional[datetime] = None
     date_available: bool = False
 
