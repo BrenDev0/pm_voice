@@ -1,7 +1,7 @@
 from deepgram import DeepgramClient
 import base64
 import time
-from src.shared.services.speech.domain.text_to_speech import TextToSpeech
+from src.shared.domain.text_to_speech import TextToSpeech
 
 class DeepgramTextToSpeechService(TextToSpeech):
     def  transcribe(self, text: str):

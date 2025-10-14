@@ -1,19 +1,18 @@
-from fastapi import WebSocket
-from typing import Union, Dict
+from typing import Union, Dict, Any
 from uuid import UUID
 
 class WebsocketConnectionsContainer:
-    _active_connections: Dict[str, WebSocket] = {}
+    _active_connections: Dict[str, Any] = {}
 
     @classmethod
-    def register_connection(cls, connection_id: Union[UUID, str], websocket: WebSocket):
+    def register_connection(cls, connection_id: Union[UUID, str], websocket: Any):
         key = str(connection_id)
         cls._active_connections[key] = websocket
         print(f"connection {key} added.")
         return
     
     @classmethod
-    def resolve_connection(cls, connection_id: Union[UUID, str]) -> WebSocket:
+    def resolve_connection(cls, connection_id: Union[UUID, str]) -> Any:
         key = str(connection_id)
         connection = cls._active_connections.get(key)
         if not connection:
@@ -23,7 +22,7 @@ class WebsocketConnectionsContainer:
         return connection
 
     @classmethod
-    def remove_connection(cls, connection_id: str):
+    def remove_connection(cls, connection_id: Union[UUID, str]):
         key = str(connection_id)
         cls._active_connections.pop(key, None)
         print(f'Connection: {key} was removed.')

@@ -3,9 +3,9 @@ from uuid import UUID
 
 from src.workflows.services.llm.domain.llm_service import LlmService
 from src.workflows.services.prompt.service import PromptService
-from src.workflows.services.prompt.entities import Message
+from src.shared.domain.entities import Message
 from src.workflows.modules.investment_data.models import InvestmentState
-from src.shared.services.web_socket.services.transport import WebSocketTransportService
+from src.api.websocket.transport import WebSocketTransportService
 
 from  src.shared.utils.decorators.error_handler import error_handler
 

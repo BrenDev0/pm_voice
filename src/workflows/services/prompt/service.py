@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from src.workflows.services.prompt.entities import Message
+from src.shared.domain.entities import Message
 
 class PromptService:
     

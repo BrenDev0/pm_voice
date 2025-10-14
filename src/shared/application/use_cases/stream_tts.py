@@ -1,6 +1,6 @@
-from src.shared.services.speech.domain.text_to_speech import TextToSpeech
-from src.shared.services.web_socket.services.transport import WebSocketTransportService
-from src.shared.services.web_socket.services.connections import WebsocketConnectionsContainer
+from src.shared.domain.text_to_speech import TextToSpeech
+from src.api.websocket.transport import WebSocketTransportService
+from src.api.websocket.connections import WebsocketConnectionsContainer
 
 
 

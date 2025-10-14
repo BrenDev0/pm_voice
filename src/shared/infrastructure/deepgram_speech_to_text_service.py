@@ -7,7 +7,7 @@ import base64
 import json
 import os
 import websockets
-from src.shared.services.speech.domain.speech_to_text import SpeechToText
+from src.shared.domain.speech_to_text import SpeechToText
 
 class DeepgramSpeechToTextService(SpeechToText):
     def __init__(self, model: str = "nova-2", language: str = "es"):
@@ -69,12 +69,8 @@ class DeepgramSpeechToTextService(SpeechToText):
         session = self.active_sessions[session_id]
         connection = session["connection"]
         transcript_parts = session["transcript_parts"]
-        close_msg = json.dumps({
-            "type": "Close"
-        })
-
+    
         try:
-            # await connection.send(close_msg)
             await connection.close()
             
             full_transcript = " ".join(transcript_parts)
@@ -109,7 +105,7 @@ class DeepgramSpeechToTextService(SpeechToText):
             print(f"Error decoding audio: {e}")
             return b""
         
-    async def _listen_to_deepgram(self, session_id: str, deepgram_ws):
+    async def _listen_to_deepgram(self, session_id: str, deepgram_ws: websockets.ClientConnection):
         try:
             async for message in deepgram_ws:
                 if session_id not in self.active_sessions:

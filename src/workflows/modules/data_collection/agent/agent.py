@@ -1,6 +1,6 @@
 from src.workflows.services.llm.domain.llm_service import LlmService
 from src.workflows.services.prompt.service import PromptService
-from src.workflows.models import State
+from src.shared.domain.models import State
 from src.workflows.modules.data_collection.models import DataCollectorResponse
 
 from src.shared.utils.decorators.error_handler import error_handler
@@ -36,6 +36,7 @@ class DataCollector:
         Instructions:
         - Only extract and return fields that are explicitly mentioned in the latest client response or chat history.
         - If no new information is found for a section, set its value to an empty object: null.
+        - You will not response with emojis or special characters.
         - Do NOT guess or invent any values.
         - Do NOT use example names, locations, or dates unless they are present in the input or chat history.
         """

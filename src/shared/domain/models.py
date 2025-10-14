@@ -14,5 +14,3 @@ class State(TypedDict):
     investment_data: InvestmentState
     client_data: ClientState
     appointment_data: AppointmentState
-
-

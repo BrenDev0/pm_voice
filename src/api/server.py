@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,15 +11,22 @@ import json
 from langgraph.graph.state import CompiledStateGraph
 import base64
 
-
-from src.workflows.models import State
+from src.shared.dependencies.configure_container import configure_container
+from src.api.services.state_service import StateService
 from src.workflows.graph import create_graph
-from src.shared.services.web_socket.services.connections import WebsocketConnectionsContainer
+from src.api.websocket.connections import WebsocketConnectionsContainer
 from src.api.middleware.hmac_verification import verify_hmac_ws
-from src.shared.services.speech.domain.speech_to_text import SpeechToText
+from src.shared.domain.speech_to_text import SpeechToText
 from src.shared.dependencies.services import get_speech_to_text_service
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    configure_container()  
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 # CORS setup
 app.add_middleware(
@@ -37,23 +45,16 @@ async def get():
 
 
 
-@app.websocket("/ws")
+@app.websocket("/ws/{connection_id}")
 async def websocket_interact(
+    connection_id: UUID,
     websocket: WebSocket,
     speech_to_text_service: SpeechToText = Depends(get_speech_to_text_service),
     graph: CompiledStateGraph = Depends(create_graph)
 ):
     await websocket.accept()
-    state = State(
-        call_id=1,
-        input="",
-        chat_history=[],
-        summary=None,
-        investment_data=None,
-        client_data=None,
-        appointment_data=None
-    )
-    # params = websocket.query_params
+    
+    params = websocket.query_params
     # signature = params.get("x-signature")
     # payload = params.get("x-payload")
 
@@ -61,20 +62,19 @@ async def websocket_interact(
     #     await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
     #     return
 
-
-    # params = websocket.query_params
-    # connection_id = params.get("connection_id", connection_id)
+    connection_id = params.get("connection_id", connection_id)
     
     # if not connection_id:
     #     await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Missing connection_id")
     #     return
     
 
-    WebsocketConnectionsContainer.register_connection(1, websocket)
+    WebsocketConnectionsContainer.register_connection(connection_id, websocket)
     
-    # print(f'Websocket connection: {connection_id} opened.')
-    print("connection opened")
+    print(f'Websocket connection: {connection_id} opened.')
+  
     transcription_session = None
+    state = StateService.get_new_state(connection_id)
     try:
         while True: 
             message = await websocket.receive()
@@ -95,19 +95,23 @@ async def websocket_interact(
                     print("audio end")
                     transcription = await speech_to_text_service.end_transcription_session(transcription_session)
                     transcription_session = None
-                    state["input"] = transcription
-                    state["response"] = ""
-                    print("STARTING STATE:::::::::::::::", state)
+                    state = StateService.refresh_state(
+                        state=state,
+                        input=transcription
+                    )
                     final_state = await graph.ainvoke(state)
-                    final_state["chat_history"].append({"human": final_state["input"]})
-                    final_state["chat_history"].append({"ai": final_state["response"]})
-                    state = final_state
-                    print("::::::::::::::::::final state", state)
+                    state = StateService.update_chat_history(
+                        state=state,
+                        input=final_state["input"],
+                        response=final_state["response"]
+                    )
+                    
 
 
     except WebSocketDisconnect:
         if transcription_session:
             await speech_to_text_service.cleanup_session(transcription_session)
+            WebsocketConnectionsContainer.remove_connection(connection_id=connection_id)
         print("Connection closed")
     except Exception as e:
         print("ERROR::::::", e)

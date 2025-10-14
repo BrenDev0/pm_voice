@@ -1,7 +1,7 @@
-from fastapi import WebSocketDisconnect, WebSocket
+from websockets import ConnectionClosed
 from typing import Union, Any
 from uuid import UUID
-from src.shared.services.web_socket.services.connections import WebsocketConnectionsContainer
+from src.api.websocket.connections import WebsocketConnectionsContainer
 
 class WebSocketTransportService:
     @staticmethod
@@ -15,7 +15,7 @@ class WebSocketTransportService:
             try: 
                 await ws.send_json(data)
             
-            except WebSocketDisconnect:
+            except ConnectionClosed:
                 print(f"Connection {connection_id} disconnected")
 
             except Exception as e:

@@ -3,7 +3,7 @@ from fastapi import Depends
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.state import CompiledStateGraph
 
-from src.workflows.models import State
+from src.shared.domain.models import State
 
 from src.workflows.modules.appointments.graph import create_appointments_graph
 from src.workflows.modules.data_collection.agent.agent import DataCollector
@@ -37,9 +37,10 @@ def create_graph(
 
     async def client_data_node(state: State):
         res = await client_data_agent.interact(
-            ws_connection_id=1,
+            ws_connection_id=state["call_id"],
             state=state["client_data"],
-            chat_history=state["chat_history"]
+            chat_history=state["chat_history"],
+            input=state["input"]
         )
         return {"response": res}
     

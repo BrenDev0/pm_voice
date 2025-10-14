@@ -1,10 +1,10 @@
 from fastapi import Depends
-from src.shared.services.speech.domain.speech_to_text import SpeechToText
-from src.shared.services.speech.domain.text_to_speech import TextToSpeech
-from src.shared.services.speech.infrastructure.deepgram_speech_to_text_service import DeepgramSpeechToTextService
-from src.shared.services.web_socket.services.transport import WebSocketTransportService
+from src.shared.domain.speech_to_text import SpeechToText
+from src.shared.domain.text_to_speech import TextToSpeech
+from src.shared.infrastructure.deepgram_speech_to_text_service import DeepgramSpeechToTextService
+from src.api.websocket.transport import WebSocketTransportService
 from src.shared.application.use_cases.stream_tts import StreamTTS
-from src.shared.services.speech.infrastructure.deepgram_text_to_speech_service import DeepgramTextToSpeechService
+from src.shared.infrastructure.deepgram_text_to_speech_service import DeepgramTextToSpeechService
 
 def get_ws_transport_service() -> WebSocketTransportService:
     return WebSocketTransportService()
