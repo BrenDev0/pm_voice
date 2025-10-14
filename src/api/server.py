@@ -80,7 +80,6 @@ async def websocket_interact(
             message = await websocket.receive()
             if "bytes" in message:
                 if transcription_session:
-                    print("SEND")
                     await speech_to_text_service.send_audio_chunk(transcription_session, message["bytes"])
 
             elif "text" in message:
@@ -92,14 +91,17 @@ async def websocket_interact(
                     transcription_session = await speech_to_text_service.start_transcription_session()
 
                 elif message_type == "audio_end":
-                    print("audio end")
+                    print("END")
                     transcription = await speech_to_text_service.end_transcription_session(transcription_session)
                     transcription_session = None
-                    state = StateService.refresh_state(
+                    
+                    state = StateService.refresh_turn(
                         state=state,
                         input=transcription
                     )
+
                     final_state = await graph.ainvoke(state)
+                    
                     state = StateService.update_chat_history(
                         state=state,
                         input=final_state["input"],

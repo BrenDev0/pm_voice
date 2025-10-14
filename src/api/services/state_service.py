@@ -44,7 +44,7 @@ class StateService:
         )
 
     @classmethod
-    def refresh_state(
+    def refresh_turn(
         cls,
         state: State,
         input: str

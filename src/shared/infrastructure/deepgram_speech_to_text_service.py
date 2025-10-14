@@ -45,7 +45,6 @@ class DeepgramSpeechToTextService(SpeechToText):
             return
         
         session = self.active_sessions[session_id]
-        print("session found")
         connection = session["connection"]
         
         try:
@@ -112,7 +111,6 @@ class DeepgramSpeechToTextService(SpeechToText):
                     break
                     
                 data = json.loads(message)
-                print(f"Deepgram response: {data}")
                 
                 # Handle different message types
                 if data.get("type") == "Results":
