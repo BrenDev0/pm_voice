@@ -17,7 +17,7 @@ def create_graph(
     investment_data_agent: InvestmentDataAgent = Depends(get_iventstment_data_agent)
  ):
     graph = StateGraph(State)
-    
+
     async def data_collection_node(state: State):
         response = await data_collector.interact(state=state)
 
