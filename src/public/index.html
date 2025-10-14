@@ -76,7 +76,7 @@
                 
                 mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
                 socket.send(JSON.stringify({ type: 'audio_start' }));
-                mediaRecorder.start(1000); // Send chunks every second
+                mediaRecorder.start(500); // Send chunks every second
                 
                 document.getElementById('startBtn').disabled = true;
                 document.getElementById('stopBtn').disabled = false;
