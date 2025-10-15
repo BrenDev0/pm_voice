@@ -56,7 +56,7 @@ def create_graph(
         if intent == "investment":
             return "investment_data"
         
-        elif intent == "appointments":
+        elif intent == "appointment":
             return "appointments"
         
         else:
