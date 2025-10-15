@@ -23,8 +23,7 @@ class StreamTTS():
     
         await self.__ws_tranport_service.send(ws_connection_id,{
             "type": "audio_response",
-            "audio_data": audio_chunk,
-            "text": "Hello world!"
+            "audio_data": audio_chunk
         })
     
         

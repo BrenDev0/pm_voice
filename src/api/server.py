@@ -79,7 +79,7 @@ async def websocket_interact(
     await greeting.execute(
         ws_connection_id=connection_id,
         text="""
-        Gracias para llamar Propiedades  mérida! ¿En cómo te puedo ayudar?
+        Gracias para llamar Propiedades  mérida! ¿En que te puedo ayudar?
         """ 
     )
     
@@ -117,8 +117,7 @@ async def websocket_interact(
 
                     await websocket.send_json({
                         "type": "audio_response",
-                        "audio_data": audio_base64,
-                        "format": "mp3"
+                        "audio_data": audio_base64
                     })
 
                     final_state = await graph.ainvoke(state)
