@@ -1,20 +1,19 @@
 import os
 from fastapi import Depends
 from langgraph.graph import StateGraph, START, END
-from langgraph.graph.state import CompiledStateGraph
 
 from src.shared.domain.models import State
-
-from src.workflows.modules.appointments.graph import create_appointments_graph
-from src.workflows.modules.data_collection.agent.agent import DataCollector
-from src.workflows.modules.data_collection.agent.dependencies import get_data_collector
-from src.workflows.modules.investment_data.agent.agent import InvestmentDataAgent
-from src.workflows.modules.investment_data.agent.dependencies  import get_iventstment_data_agent
+from src.workflows.modules.appointments.application.agent import AppointmentsAgent
+from src.workflows.modules.appointments.dependencies import get_appoinments_agent
+from src.workflows.modules.data_collection.application.agent import DataCollector
+from src.workflows.modules.data_collection.dependencies import get_data_collector
+from src.workflows.modules.investment_data.application.agent import InvestmentDataAgent
+from src.workflows.modules.investment_data.dependencies  import get_iventstment_data_agent
 
 def create_graph(
-    appointments_subgraph: CompiledStateGraph = Depends(create_appointments_graph),
+    appointments_agent: AppointmentsAgent  = Depends(get_appoinments_agent),
     data_collector: DataCollector = Depends(get_data_collector),
-    investment_data_agent: InvestmentDataAgent = Depends(get_iventstment_data_agent)
+    investment_agent: InvestmentDataAgent = Depends(get_iventstment_data_agent)
  ):
     graph = StateGraph(State)
 
@@ -28,13 +27,22 @@ def create_graph(
         }
     
     async def appointments_node(state: State):
-        appointments_state = await appointments_subgraph.ainvoke(state["appointment_data"])
+        appointments_state = state["appointment_data"]
 
-        return {"appointment_data": appointments_state}
+        required_fields = ["name", "email", "phone"]
+        missing = [field for field in required_fields if not getattr(appointments_state, field, None)]
+        if missing:
+            res = await appointments_agent.interact(
+                ws_connection_id=state["call_id"],
+                chat_history=state["chat_history"],
+                input=state["input"]
+            )
 
-    
+            return {"appointments_state": res}
+
+
     async def investment_data_node(state: State):
-        await investment_data_agent.interact(
+        await investment_agent.interact(
             ws_connection_id=state["call_id"],
             state=state["investment_data"],
             chat_history=state["chat_history"],
@@ -43,7 +51,7 @@ def create_graph(
 
         return state
     
-    def router(state: State):
+    def intent_router(state: State):
         intent = state["client_intent"]
         
         if intent == "investment":
@@ -62,7 +70,7 @@ def create_graph(
     graph.add_edge(START, "data_collection")
     graph.add_conditional_edges(
         "data_collection",
-        router,
+        intent_router,
         {
             "appointments": "appointments",
             "investment_data": "investment_data"

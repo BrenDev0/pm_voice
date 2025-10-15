@@ -3,8 +3,8 @@ from langchain_openai import OpenAIEmbeddings
 import os
 from typing import List
 
-from src.workflows.core.services.embedding.domain.embedding_service import EmbeddingService
-from src.workflows.core.services.embedding.domain.entities import SearchResult, EmbeddingConfig
+from src.workflows.domain.services.embedding_service import EmbeddingService
+from src.workflows.domain.entities import SearchResult, EmbeddingConfig
 from src.shared.utils.decorators.error_handler import error_handler
 
 class QdrantEmbeddingService(EmbeddingService):

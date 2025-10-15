@@ -1,9 +1,9 @@
 from langgraph.graph import  StateGraph, START, END
 from  fastapi import Depends
 
-from src.workflows.modules.appointments.agent.agent import AppointmentsAgent
+from src.workflows.modules.appointments.application.agent import AppointmentsAgent
 from src.workflows.modules.appointments.domain.models import AppointmentState
-from src.workflows.modules.appointments.agent.dependencies import get_appoinments_agent
+from src.workflows.modules.appointments.dependencies import get_appoinments_agent
 
 from src.workflows.modules.appointments.domain.calendar_service import CalendarService
 from src.workflows.modules.appointments.infrastructure.dependencies import get_calendar_service
@@ -21,7 +21,9 @@ def create_appointments_graph(
             return "get_datetime"
 
     async def get_datetime_node(state: AppointmentState):
-        response = await appoinment_agent.interact()
+        response = await appoinment_agent.interact(
+
+        )
 
         return {"appointment_datetime": response}
 

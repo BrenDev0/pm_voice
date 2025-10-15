@@ -1,11 +1,10 @@
-# src/workflows/modules/client_data/application/client_data_agent.py
-from typing import List
+from typing import List, Union
 from uuid import UUID
 
-from src.workflows.services.llm.domain.llm_service import LlmService
-from src.workflows.services.prompt.service import PromptService
+from src.workflows.domain.services.llm_service import LlmService
+from src.workflows.application.prompt_service import PromptService
 from src.shared.domain.entities import Message
-from src.api.websocket.transport import WebSocketTransportService
+from src.shared.application.use_cases.stream_tts import StreamTTS
 from src.shared.utils.decorators.error_handler import error_handler
 from src.workflows.modules.appointments.domain.models import AppointmentState
 
@@ -16,17 +15,22 @@ class AppointmentsAgent:
         self, 
         llm_service: LlmService,
         prompt_service: PromptService,  
-        ws_transport_service: WebSocketTransportService
+        stream_tts: StreamTTS
     ):
         self.__llm_service = llm_service
         self.__prompt_service = prompt_service
-        self.__ws_transport_service = ws_transport_service
+        self.__stream_tts = stream_tts
 
     @error_handler(module=__MODULE)  
-    async def __get_system_prompt(self, state: AppointmentState) -> str:
+    async def __get_prompt(
+        self, 
+        state: AppointmentState,
+        chat_history: List[Message],
+        input: str
+    ) -> str:
         missing_data = [key for key, value in state.model_dump().items() if value is None]
         
-        return f"""
+        system_message = f"""
         You are a personal data collector speaking with a client on a phone call to book thier appoiintment.
         Your job is to interact in a calm, friendly, and natural conversational tone, collecting any missing data needed for the appointment.
 
@@ -55,26 +59,50 @@ class AppointmentsAgent:
         - Do not repeat yourself.
         - Use the chat history to avoid redundancy.
         """
+    
+        prompt = await self.__prompt_service.build_prompt(
+            system_message=system_message,
+            chat_history=chat_history,
+            input=input
+        )
+
+        return prompt
 
     @error_handler(module=__MODULE)
     async def interact(
         self,
-        ws_connection_id: UUID,
+        ws_connection_id: Union[UUID, str],
         state: AppointmentState,
-        chat_history: List[Message]
+        chat_history: List[Message],
+        input: str
     ):
-        system_prompt = await self.__get_system_prompt(state)
         
-        prompt = await self.__prompt_service.build_promt(
-            system_message=system_prompt,
-            chat_history=chat_history
+        prompt = await self.__get_prompt(
+            chat_history=chat_history,
+            state=state,
+            input=input
         )
-
+        chunks = []
+        sentence = ""
         async for chunk in self.__llm_service.generate_stream(
             prompt=prompt,
-            temperature=1.0
+            temperature=0.3
         ):
-            await self.__ws_transport_service.send(
-                connection_id=ws_connection_id,
-                data=chunk
+            chunks.append(chunk)
+            sentence += chunk
+            # Check for sentence-ending punctuation
+            if any(p in chunk for p in [".", "?", "!"]) and len(sentence) > 10:
+                await self.__stream_tts.execute(
+                    ws_connection_id=ws_connection_id,
+                    text=sentence.strip()
+                )
+                sentence = ""
+
+        # Send any remaining text after the stream ends
+        if sentence.strip():
+            await self.__stream_tts.execute(
+                ws_connection_id=ws_connection_id,
+                text=sentence.strip()
             )
+            
+        return "".join(chunks)

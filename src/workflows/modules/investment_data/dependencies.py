@@ -1,12 +1,12 @@
 from fastapi import Depends
 
-from src.workflows.modules.investment_data.agent.agent import InvestmentDataAgent
+from src.workflows.modules.investment_data.application.agent import InvestmentDataAgent
 
-from src.workflows.services.llm.domain.llm_service import LlmService
-from src.workflows.services.prompt.dependencies import get_prompt_service
+from src.workflows.domain.services.llm_service import LlmService
+from src.workflows.dependencies import get_prompt_service
 
-from src.workflows.services.prompt.service import PromptService
-from src.workflows.services.llm.infrastructure.dependencies import get_llm_service
+from src.workflows.application.prompt_service import PromptService
+from src.workflows.dependencies import get_llm_service
 
 from src.shared.application.use_cases.stream_tts import StreamTTS
 from src.shared.dependencies.services import get_stream_tts_use_case

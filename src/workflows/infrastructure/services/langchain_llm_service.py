@@ -1,8 +1,7 @@
 from typing import AsyncGenerator
 from langchain_openai import ChatOpenAI
 
-from src.workflows.services.llm.domain.llm_service import LlmService
-
+from src.workflows.domain.services.llm_service import LlmService
 from src.shared.utils.decorators.error_handler import error_handler
 
 class LangchainLlmService(LlmService):
