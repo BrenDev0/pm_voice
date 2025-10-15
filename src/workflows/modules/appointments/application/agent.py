@@ -70,7 +70,7 @@ class AppointmentsAgent:
         - Use the chat history to avoid redundancy.
         """
     
-        prompt = await self.__prompt_service.build_prompt_data_collection(
+        prompt = await self.__prompt_service.build_prompt(
             system_message=system_message,
             chat_history=chat_history,
             input=input
