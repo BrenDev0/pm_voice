@@ -86,6 +86,7 @@ class InvestmentDataAgent:
         input: str
     ):
         
+        
         prompt = await self.__get_prompt(
             chat_history=chat_history,
             state=state,

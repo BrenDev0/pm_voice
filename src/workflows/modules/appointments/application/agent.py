@@ -1,5 +1,6 @@
 from typing import List, Union
 from uuid import UUID
+from datetime import datetime
 
 from src.workflows.domain.services.llm_service import LlmService
 from src.workflows.application.prompt_service import PromptService
@@ -7,6 +8,7 @@ from src.shared.domain.entities import Message
 from src.shared.application.use_cases.stream_tts import StreamTTS
 from src.shared.utils.decorators.error_handler import error_handler
 from src.workflows.modules.appointments.domain.models import AppointmentState
+from src.workflows.modules.appointments.domain.calendar_service import CalendarService
 
 class AppointmentsAgent:
     __MODULE = "appointments.agent"
@@ -14,30 +16,37 @@ class AppointmentsAgent:
     def __init__(
         self, 
         llm_service: LlmService,
-        prompt_service: PromptService,  
+        prompt_service: PromptService,
+        calendar_service: CalendarService,  
         stream_tts: StreamTTS
     ):
         self.__llm_service = llm_service
         self.__prompt_service = prompt_service
+        self.__calendar_service = calendar_service
         self.__stream_tts = stream_tts
 
     @error_handler(module=__MODULE)  
-    async def __get_prompt(
+    async def __get_prompt_data_collection(
         self, 
         state: AppointmentState,
         chat_history: List[Message],
         input: str
     ) -> str:
         missing_data = [key for key, value in state.model_dump().items() if value is None]
-        
+        now = datetime.now()
         system_message = f"""
-        You are a personal data collector speaking with a client on a phone call to book thier appoiintment.
+        You are a personal data collector speaking with a client on a phone call to book thier appointment.
         Your job is to interact in a calm, friendly, and natural conversational tone, collecting any missing data needed for the appointment.
 
         The data that you will be collecting:
         name - the clients full name
         email - the clients email address  
         phone - the clients phone number
+        appointment_datetime datestring
+
+        the current date time is:
+            {now}
+            use this as a reference when adding appoinment_datetime
 
         This data is required for making appointments and for any information they client may be request, and to best help the client with thier needs.
 
@@ -45,6 +54,7 @@ class AppointmentsAgent:
         {missing_data}
         
         IMPORTANT:
+        - you will not ask for a datetime untill all other fields are filled.
         - Personalize each response using information from the chat history and user input.
         - DO NOT repeat greetings, opening phrases, or explanations already used in the conversation.
         - Avoid robotic or scripted language; respond as a real person would on a phone call.
@@ -60,7 +70,7 @@ class AppointmentsAgent:
         - Use the chat history to avoid redundancy.
         """
     
-        prompt = await self.__prompt_service.build_prompt(
+        prompt = await self.__prompt_service.build_prompt_data_collection(
             system_message=system_message,
             chat_history=chat_history,
             input=input
@@ -76,8 +86,10 @@ class AppointmentsAgent:
         chat_history: List[Message],
         input: str
     ):
+        if state.appointment_datetime:
+            pass
         
-        prompt = await self.__get_prompt(
+        prompt = await self.__get_prompt_data_collection(
             chat_history=chat_history,
             state=state,
             input=input

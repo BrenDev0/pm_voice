@@ -26,7 +26,7 @@ def create_graph(
             "client_intent": response.client_intent
         }
     
-    async def appointments_node(state: State):
+    async def appointments_data_node(state: State):
         appointments_state = state["appointment_data"]
 
         required_fields = ["name", "email", "phone"]
@@ -64,7 +64,7 @@ def create_graph(
             return "confirmation"
     
     graph.add_node("data_collection", data_collection_node)
-    graph.add_node("appointments", appointments_node)
+    graph.add_node("appointments_data", appointments_data_node)
     graph.add_node("investment_data", investment_data_node)
 
     graph.add_edge(START, "data_collection")
