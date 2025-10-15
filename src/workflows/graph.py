@@ -26,19 +26,18 @@ def create_graph(
             "client_intent": response.client_intent
         }
     
-    async def appointments_data_node(state: State):
+    async def appointments_node(state: State):
         appointments_state = state["appointment_data"]
 
-        required_fields = ["name", "email", "phone"]
-        missing = [field for field in required_fields if not getattr(appointments_state, field, None)]
-        if missing:
-            res = await appointments_agent.interact(
-                ws_connection_id=state["call_id"],
-                chat_history=state["chat_history"],
-                input=state["input"]
-            )
+     
+        res = await appointments_agent.interact(
+            ws_connection_id=state["call_id"],
+            state=appointments_state,
+            chat_history=state["chat_history"],
+            input=state["input"]
+        )
 
-            return {"appointments_state": res}
+        return {"appointments_state": res}
 
 
     async def investment_data_node(state: State):
@@ -64,7 +63,7 @@ def create_graph(
             return "confirmation"
     
     graph.add_node("data_collection", data_collection_node)
-    graph.add_node("appointments_data", appointments_data_node)
+    graph.add_node("appointments", appointments_node)
     graph.add_node("investment_data", investment_data_node)
 
     graph.add_edge(START, "data_collection")
