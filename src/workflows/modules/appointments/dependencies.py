@@ -21,12 +21,14 @@ def get_calendar_service() -> CalendarService:
 def get_appoinments_agent(
     llm_service: LlmService = Depends(get_llm_service),
     prompt_service: PromptService = Depends(get_prompt_service),
-    stream_tts: StreamTTS = Depends(get_stream_tts_use_case)
+    stream_tts: StreamTTS = Depends(get_stream_tts_use_case),
+    calendar_service: CalendarService = Depends(get_calendar_service)
     
 ) -> AppointmentsAgent:
     
     return AppointmentsAgent(
         llm_service=llm_service,
         prompt_service=prompt_service,
-        stream_tts=stream_tts
+        stream_tts=stream_tts,
+        calendar_service=calendar_service
     )
