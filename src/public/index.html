@@ -27,6 +27,7 @@
             try { 
                 // Connect to WebSocket
                 socket = new WebSocket('wss://pmvoice.up.railway.app/ws/4de3264d-8ff1-4c34-8061-e786402909a7');
+                // socket = new WebSocket('ws://localhost:8000/ws/4de3264d-8ff1-4c34-8061-e786402909a7');
                 
                 socket.onopen = () => {
                     console.log('WebSocket connected');

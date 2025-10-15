@@ -17,7 +17,9 @@ def get_speech_to_text_service() -> SpeechToText:
     )
 
 def get_text_to_speech_service() -> TextToSpeech:
-    return DeepgramTextToSpeechService()
+    return DeepgramTextToSpeechService(
+        model="aura-2-celeste-es"
+    )
 
 def get_stream_tts_use_case(
     ws_tranport_service: WebSocketTransportService = Depends(get_ws_transport_service),
