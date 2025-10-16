@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.workflows.modules.appointments.domain.entities import Event
+from src.workflows.domain.entities import Event
 from typing import List
 
 class CalendarService(ABC):

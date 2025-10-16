@@ -3,12 +3,12 @@ from fastapi import Depends
 from langgraph.graph import StateGraph, START, END
 
 from src.shared.domain.models import State
-from src.workflows.modules.appointments.application.agent import AppointmentsAgent
-from src.workflows.modules.appointments.dependencies import get_appoinments_agent
-from src.workflows.modules.data_collection.application.agent import DataCollector
-from src.workflows.modules.data_collection.dependencies import get_data_collector
-from src.workflows.modules.investment_data.application.agent import InvestmentDataAgent
-from src.workflows.modules.investment_data.dependencies  import get_iventstment_data_agent
+from src.workflows.application.agents.appointments_data_agent import AppointmentsAgent
+from src.workflows.dependencies import get_appoinments_agent
+from src.workflows.application.agents.data_collection_agent import DataCollector
+from src.workflows.dependencies import get_data_collector
+from src.workflows.application.agents.investment_data_agent import InvestmentDataAgent
+from src.workflows.dependencies  import get_iventstment_data_agent
 
 def create_graph(
     appointments_agent: AppointmentsAgent  = Depends(get_appoinments_agent),

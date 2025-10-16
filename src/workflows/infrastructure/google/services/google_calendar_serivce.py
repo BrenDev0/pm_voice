@@ -1,10 +1,10 @@
 import os
 import datetime
 
-from src.workflows.modules.appointments.domain.entities import Event
-from src.workflows.modules.appointments.domain.calendar_service import CalendarService
-from src.workflows.modules.appointments.infrastructure.google.decorators.errors import google_api_error_handler
-from src.workflows.modules.appointments.infrastructure.google.services.client_manager import GoogleClientManager
+from src.workflows.domain.entities import Event
+from src.workflows.domain.services.calendar_service import CalendarService
+from src.workflows.infrastructure.google.decorators.errors import google_api_error_handler
+from src.workflows.infrastructure.google.services.client_manager import GoogleClientManager
 
 
 class GoogleCalendarService(CalendarService):

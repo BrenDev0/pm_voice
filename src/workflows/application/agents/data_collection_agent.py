@@ -1,7 +1,7 @@
 from src.workflows.domain.services.llm_service import LlmService
 from src.workflows.application.prompt_service import PromptService
 from src.shared.domain.models import State
-from src.workflows.modules.data_collection.domain.models import DataCollectorResponse
+from src.workflows.domain.models import DataCollectorResponse
 
 from src.shared.utils.decorators.error_handler import error_handler
 

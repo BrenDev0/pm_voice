@@ -1,8 +1,8 @@
 from typing_extensions import TypedDict
 from typing import List, Dict, Any
 
-from src.workflows.modules.appointments.domain.models import AppointmentState
-from src.workflows.modules.investment_data.domain.models import InvestmentState
+from src.workflows.domain.models import AppointmentState
+from src.workflows.domain.models import InvestmentState
 
 class State(TypedDict):
     call_id: str

@@ -1,60 +1,57 @@
 from typing import List, Union
 from uuid import UUID
-from datetime import datetime
 
 from src.workflows.domain.services.llm_service import LlmService
 from src.workflows.application.prompt_service import PromptService
 from src.shared.domain.entities import Message
+from src.workflows.domain.models import InvestmentState
 from src.shared.application.use_cases.stream_tts import StreamTTS
-from src.shared.utils.decorators.error_handler import error_handler
-from src.workflows.modules.appointments.domain.models import AppointmentState
-from src.workflows.modules.appointments.domain.calendar_service import CalendarService
 
-class AppointmentsAgent:
-    __MODULE = "appointments.agent"
-    
+from  src.shared.utils.decorators.error_handler import error_handler
+
+class InvestmentDataAgent:
+    __MODULE = "investment_data.agent"
     def __init__(
         self, 
-        llm_service: LlmService,
+        llm_service: LlmService, 
         prompt_service: PromptService,
-        calendar_service: CalendarService,  
         stream_tts: StreamTTS
     ):
         self.__llm_service = llm_service
         self.__prompt_service = prompt_service
-        self.__calendar_service = calendar_service
         self.__stream_tts = stream_tts
-
-    @error_handler(module=__MODULE)  
-    async def __get_prompt_data_collection(
-        self, 
-        state: AppointmentState,
+    
+    @error_handler(module=__MODULE)
+    async def __get_prompt(
+        self,
+        state: InvestmentState,
         chat_history: List[Message],
         input: str
-    ) -> str:
+    ):
         missing_data = [key for key, value in state.model_dump().items() if value is None]
-        now = datetime.now()
         system_message = f"""
-        You are a personal data collector speaking with a client on a phone call to book thier appointment.
-        Your job is to interact in a calm, friendly, and natural conversational tone, collecting any missing data needed for the appointment.
+        You are a personal data collector speaking with a client on a phone call.
+        Your job is to interact in a calm, friendly, and natural conversational tone, collecting any missing data needed for the clients investment needs.
 
-        The data that you will be collecting:
-        name - the clients full name
-        email - the clients email address  
-        phone - the clients phone number
-        appointment_datetime datestring
+        You offer propierties, apartments, and houses.
+        You offer these produnts in the North, Central of Mérida or on the Yucatán coast
+        You offer these products as rentals or purchases
 
-        the current date time is:
-            {now}
-            use this as a reference when adding appoinment_datetime
+        the data that you will be collecting:
+        type(house, apartment, commercial, land, ect) - the  type of product the client is looking for or presenting
+        location - where the client is looking for the product
+        budget - the clients budget
+        action(buy, rent, sell, ect.) - what the client wishes to do with the product
 
-        This data is required for making appointments and for any information they client may be request, and to best help the client with thier needs.
+        this data is required for making appointments and for any information they client may be request, and to best help the client with thier needs.
 
-        The missing data that you need to request:
+        the missing data that you need to request:
         {missing_data}
+
+        If there is no missing data summerize the data you have collected and let the client know that the data has been sent to an acesor, 
+        then ask the client if they would prefer to make an apoinment to view all options or would prefer to have the data emailed to them
         
         IMPORTANT:
-        - you will not ask for a datetime untill all other fields are filled.
         - Personalize each response using information from the chat history and user input.
         - DO NOT repeat greetings, opening phrases, or explanations already used in the conversation.
         - Avoid robotic or scripted language; respond as a real person would on a phone call.
@@ -63,13 +60,15 @@ class AppointmentsAgent:
         - If you already have a piece of data, do not ask for it again.
         - Vary your language and sentence structure; do not start every response the same way.
         - Use context from previous exchanges to make the conversation flow smoothly.
+        - Do not respond with emojis
 
         Remember:
         - Be friendly and conversational.
         - Do not repeat yourself.
         - Use the chat history to avoid redundancy.
+
         """
-    
+
         prompt = await self.__prompt_service.build_prompt(
             system_message=system_message,
             chat_history=chat_history,
@@ -77,19 +76,18 @@ class AppointmentsAgent:
         )
 
         return prompt
-
+    
     @error_handler(module=__MODULE)
     async def interact(
         self,
         ws_connection_id: Union[UUID, str],
-        state: AppointmentState,
+        state: InvestmentState,
         chat_history: List[Message],
         input: str
     ):
-        if state.appointment_datetime:
-            pass
         
-        prompt = await self.__get_prompt_data_collection(
+        
+        prompt = await self.__get_prompt(
             chat_history=chat_history,
             state=state,
             input=input
@@ -118,3 +116,9 @@ class AppointmentsAgent:
             )
             
         return "".join(chunks)
+
+
+
+        
+
+        
