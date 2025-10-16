@@ -90,11 +90,10 @@ class GoogleCalendarService(CalendarService):
             "items": [{"id": self.calendar_id}]
         }
 
-        try:
-            res = service.freebusy().query(body=body).execute()
-            print(res, "RESSSSSSSSSSSSSSSSSS")
-        except Exception as e:
-            print(e, ":::::::::::::::::::::::ERROR")
+        
+        res = service.freebusy().query(body=body).execute()
+        print(res, "RESSSSSSSSSSSSSSSSSS")
+       
         # calendars = res.get("calendars", {})
         # busy_slots = calendars.get(self.calendar_id, {}).get("busy", [])
 
