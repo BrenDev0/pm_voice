@@ -19,7 +19,7 @@ class StateService:
 
         ai_message = Message(
             type="ai",
-            content="response"
+            content=response
         )
 
         state['chat_history'].extend([human_message, ai_message])
