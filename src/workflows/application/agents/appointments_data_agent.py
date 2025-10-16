@@ -87,7 +87,7 @@ class AppointmentsAgent:
         input: str
     ):
         if state.appointment_datetime:
-            pass
+            self.__calendar_service.get_events()
         
         prompt = await self.__get_prompt_data_collection(
             chat_history=chat_history,

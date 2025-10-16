@@ -4,7 +4,6 @@ from uuid import UUID
 from src.workflows.domain.services.llm_service import LlmService
 from src.workflows.application.prompt_service import PromptService
 from src.shared.domain.entities import Message
-from src.workflows.domain.models import InvestmentState
 from src.shared.application.use_cases.stream_tts import StreamTTS
 
 from  src.shared.utils.decorators.error_handler import error_handler

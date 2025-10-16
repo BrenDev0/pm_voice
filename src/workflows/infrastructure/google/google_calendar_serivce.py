@@ -13,7 +13,7 @@ class GoogleCalendarService(CalendarService):
         self
     ):
         self.calendar_id = os.getenv("GOOGLE_CALENDAR_ID")
-        self.__service_key = "canlendar"
+        self.__service_key = "calendar"
 
 
     @google_api_error_handler(module=__MODULE)
@@ -21,7 +21,7 @@ class GoogleCalendarService(CalendarService):
         self,
     ):
         service = await GoogleClientManager.build_service(
-            service_key = self.__service_key
+            service_key=self.__service_key
         )
 
         now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
@@ -73,3 +73,29 @@ class GoogleCalendarService(CalendarService):
         ).execute()
        
         return event
+    
+    @google_api_error_handler(module=__MODULE)
+    async def check_availability(
+        self,    
+        appointment_datetime: str
+    ):
+       
+        service =  await GoogleClientManager.build_service(service_name=self.__service_key)
+       
+
+        body = {
+            "timeMin": "2025-10-17T18:00:00-06:00",
+            "timeMax": "2025-10-17T18:30:00-06:00",
+            "timeZone": "America/Merida",
+            "items": [{"id": self.calendar_id}]
+        }
+
+        try:
+            res = service.freebusy().query(body=body).execute()
+            print(res, "RESSSSSSSSSSSSSSSSSS")
+        except Exception as e:
+            print(e, ":::::::::::::::::::::::ERROR")
+        # calendars = res.get("calendars", {})
+        # busy_slots = calendars.get(self.calendar_id, {}).get("busy", [])
+
+        # return len(busy_slots) == 0
