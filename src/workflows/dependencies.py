@@ -6,6 +6,7 @@ from src.workflows.domain.services.calendar_service import CalendarService
 from src.workflows.application.prompt_service import PromptService
 from src.workflows.application.agents.investment_data_agent import InvestmentDataAgent
 from src.workflows.application.agents.data_collection_agent import DataCollector
+from src.workflows.application.agents.fallback_agent import FallbackAgent
 from src.shared.application.use_cases.stream_tts import StreamTTS
 from src.workflows.application.agents.appointments_data_agent import AppointmentsAgent
 
@@ -60,4 +61,16 @@ def get_data_collector(
     return DataCollector(
         llm_service=llm_service,
         prompt_service=prompt_service
+    )
+
+
+def get_fall_back_agent(
+    llm_service: LlmService = Depends(get_llm_service),
+    prompt_service: PromptService = Depends(get_prompt_service),
+    stream_tts: StreamTTS = Depends(get_stream_tts_use_case)
+) -> FallbackAgent:
+    return FallbackAgent(
+        llm_service=llm_service,
+        prompt_service=prompt_service,
+        stream_tts=stream_tts
     )

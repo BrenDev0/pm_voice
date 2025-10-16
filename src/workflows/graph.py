@@ -9,11 +9,14 @@ from src.workflows.application.agents.data_collection_agent import DataCollector
 from src.workflows.dependencies import get_data_collector
 from src.workflows.application.agents.investment_data_agent import InvestmentDataAgent
 from src.workflows.dependencies  import get_iventstment_data_agent
+from src.workflows.application.agents.fallback_agent import FallbackAgent
+from src.workflows.dependencies import get_fall_back_agent
 
 def create_graph(
     appointments_agent: AppointmentsAgent  = Depends(get_appoinments_agent),
     data_collector: DataCollector = Depends(get_data_collector),
-    investment_agent: InvestmentDataAgent = Depends(get_iventstment_data_agent)
+    investment_agent: InvestmentDataAgent = Depends(get_iventstment_data_agent),
+    fallback_agent: FallbackAgent = Depends(get_fall_back_agent)
  ):
     graph = StateGraph(State)
 
@@ -29,7 +32,6 @@ def create_graph(
     async def appointments_node(state: State):
         appointments_state = state["appointment_data"]
 
-     
         res = await appointments_agent.interact(
             ws_connection_id=state["call_id"],
             state=appointments_state,
@@ -50,6 +52,15 @@ def create_graph(
 
         return {"response": res}
     
+    async def fallback_node(state: State):
+        res = await fallback_agent.interact(
+            ws_connection_id=state["call_id"],
+            chat_history=state["chat_history"],
+            input=state["input"]
+        )
+
+        return {"response": res}
+    
     def intent_router(state: State):
         intent = state["client_intent"]
         
@@ -60,11 +71,12 @@ def create_graph(
             return "appointments"
         
         else:
-            return "confirmation"
+            return "fallback"
     
     graph.add_node("data_collection", data_collection_node)
     graph.add_node("appointments", appointments_node)
     graph.add_node("investment_data", investment_data_node)
+    graph.add_node("fallback", fallback_node)
 
     graph.add_edge(START, "data_collection")
     graph.add_conditional_edges(
@@ -72,10 +84,12 @@ def create_graph(
         intent_router,
         {
             "appointments": "appointments",
-            "investment_data": "investment_data"
+            "investment_data": "investment_data",
+            "fallback": "fallback"
         }
     )
     graph.add_edge("appointments", END)
     graph.add_edge("investment_data", END)
+    graph.add_edge("fallback", END)
 
     return graph.compile()
