@@ -37,18 +37,18 @@ def create_graph(
             input=state["input"]
         )
 
-        return {"appointments_state": res}
+        return {"response": res}
 
 
     async def investment_data_node(state: State):
-        await investment_agent.interact(
+        res = await investment_agent.interact(
             ws_connection_id=state["call_id"],
             state=state["investment_data"],
             chat_history=state["chat_history"],
             input=state["input"]
         )
 
-        return state
+        return {"response": res}
     
     def intent_router(state: State):
         intent = state["client_intent"]

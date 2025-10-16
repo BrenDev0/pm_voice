@@ -9,7 +9,7 @@ from src.workflows.application.agents.data_collection_agent import DataCollector
 from src.shared.application.use_cases.stream_tts import StreamTTS
 from src.workflows.application.agents.appointments_data_agent import AppointmentsAgent
 
-from src.workflows.infrastructure.google.services.google_calendar_serivce import GoogleCalendarService
+from src.workflows.infrastructure.google.google_calendar_serivce import GoogleCalendarService
 from src.workflows.infrastructure.services.langchain_llm_service import LangchainLlmService
 
 from src.shared.dependencies.services import get_stream_tts_use_case

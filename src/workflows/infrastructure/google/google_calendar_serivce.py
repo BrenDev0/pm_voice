@@ -3,8 +3,8 @@ import datetime
 
 from src.workflows.domain.entities import Event
 from src.workflows.domain.services.calendar_service import CalendarService
-from src.workflows.infrastructure.google.decorators.errors import google_api_error_handler
-from src.workflows.infrastructure.google.services.client_manager import GoogleClientManager
+from src.workflows.infrastructure.google.errors_decorator import google_api_error_handler
+from src.workflows.infrastructure.google.google_client_manager import GoogleClientManager
 
 
 class GoogleCalendarService(CalendarService):
