@@ -27,7 +27,7 @@ class AppointmentsAgent:
         self.__stream_tts = stream_tts
 
     @error_handler(module=__MODULE)  
-    async def __get_prompt_data_collection(
+    def __get_prompt_data_collection(
         self, 
         state: AppointmentState,
         chat_history: List[Message],
@@ -70,7 +70,7 @@ class AppointmentsAgent:
         - Use the chat history to avoid redundancy.
         """
     
-        prompt = await self.__prompt_service.build_prompt(
+        prompt = self.__prompt_service.build_prompt(
             system_message=system_message,
             chat_history=chat_history,
             input=input
@@ -79,7 +79,7 @@ class AppointmentsAgent:
         return prompt
     
     @error_handler(module=__MODULE)
-    async def __get_prompt_unavailible(
+    def __get_prompt_unavailible(
         self, 
         chat_history: List[Message],
         input: str
@@ -89,7 +89,7 @@ class AppointmentsAgent:
         Ask the client for another date time for the appoinment
         """
     
-        prompt = await self.__prompt_service.build_prompt(
+        prompt = self.__prompt_service.build_prompt(
             system_message=system_message,
             chat_history=chat_history,
             input=input
@@ -98,7 +98,7 @@ class AppointmentsAgent:
         return prompt
     
     @error_handler(module=__MODULE)
-    async def __get_prompt_confirmation(
+    def __get_prompt_confirmation(
         self, 
         chat_history: List[Message],
         input: str
@@ -108,7 +108,7 @@ class AppointmentsAgent:
         Thank the client for thier time and ask if there is anything else you can be of help with.
         """
     
-        prompt = await self.__prompt_service.build_prompt(
+        prompt = self.__prompt_service.build_prompt(
             system_message=system_message,
             chat_history=chat_history,
             input=input
@@ -125,7 +125,7 @@ class AppointmentsAgent:
         input: str
     ):
         if state.appointment_datetime:
-            unavailable = self.__calendar_service.check_availability(state.appointment_datetime.isoformat())
+            unavailable = await self.__calendar_service.check_availability(state.appointment_datetime.isoformat())
             if unavailable:
                 prompt = self.__get_prompt_unavailible(
                     chat_history=chat_history,
@@ -133,12 +133,12 @@ class AppointmentsAgent:
                 )
                 state.appointment_datetime = None
             else: 
-                prompt = await self.__get_prompt_confirmation(
+                prompt = self.__get_prompt_confirmation(
                     chat_history=chat_history,
                     input=input
                 )
         else: 
-            prompt = await self.__get_prompt_data_collection(
+            prompt = self.__get_prompt_data_collection(
                 chat_history=chat_history,
                 state=state,
                 input=input

@@ -5,7 +5,7 @@ from src.shared.domain.entities import Message
 
 class PromptService:
     
-    async def build_prompt(
+    def build_prompt(
         self,  
         system_message: str, 
         input: str = None,
