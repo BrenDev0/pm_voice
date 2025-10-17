@@ -132,10 +132,16 @@ class AppointmentsAgent:
                     chat_history=chat_history,
                     input=input
                 )
+                
+                event_description = ""
+                for msg in chat_history:
+                    sender = "Propiedades Mérida" if msg.type == "ai" else state.name
+                    event_description += f"\n\n{sender}: {msg.content}"
+
                 new_event = Event(
                     title=f"Cita con {state.name}",
                     appoinment_datetime=state.appointment_datetime.isoformat(),
-                    description=str(chat_history),
+                    description=event_description,
                     attendees=[state.email]
                 )
 
