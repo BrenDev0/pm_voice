@@ -144,7 +144,11 @@ class AppointmentsAgent:
                     sender = "Propiedades Mérida" if msg.type == "ai" else state.name
                     event_description += f"\n\n{sender}: {msg.content}"
 
-                event_description += f"{state.name}: {input}"
+                event_description += f""""
+                \n\n{state.name}: {input}
+                
+                La transcripción finalizó después de la confirmación de la cita. Las interacciones con el cliente pueden haber continuado y no están presentes en esta transcripción
+                """
 
                 new_event = Event(
                     title=f"Cita con {state.name}",
