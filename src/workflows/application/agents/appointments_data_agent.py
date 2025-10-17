@@ -77,6 +77,44 @@ class AppointmentsAgent:
         )
 
         return prompt
+    
+    @error_handler(module=__MODULE)
+    async def __get_prompt_unavailible(
+        self, 
+        chat_history: List[Message],
+        input: str
+    ) -> str:
+        system_message = f"""
+        You are on a ohone call with a client whose making an appoinmnet but the date they have requested is unavailbale.
+        Ask the client for another date time for the appoinment
+        """
+    
+        prompt = await self.__prompt_service.build_prompt(
+            system_message=system_message,
+            chat_history=chat_history,
+            input=input
+        )
+
+        return prompt
+    
+    @error_handler(module=__MODULE)
+    async def __get_prompt_confirmation(
+        self, 
+        chat_history: List[Message],
+        input: str
+    ) -> str:
+        system_message = f"""
+        You are on a ohone call with a client whose making an appoinmnet please let the client know that thier appointmnet hase been made.
+        Thank the client for thier time and ask if there is anything else you can be of help with.
+        """
+    
+        prompt = await self.__prompt_service.build_prompt(
+            system_message=system_message,
+            chat_history=chat_history,
+            input=input
+        )
+
+        return prompt
 
     @error_handler(module=__MODULE)
     async def interact(
@@ -87,13 +125,26 @@ class AppointmentsAgent:
         input: str
     ):
         if state.appointment_datetime:
-            self.__calendar_service.get_events()
-        
-        prompt = await self.__get_prompt_data_collection(
-            chat_history=chat_history,
-            state=state,
-            input=input
-        )
+            unavailable = self.__calendar_service.check_availability(state.appointment_datetime.isoformat())
+            if unavailable:
+                prompt = self.__get_prompt_unavailible(
+                    chat_history=chat_history,
+                    input=input
+                )
+                state.appointment_datetime = None
+            else: 
+                prompt = await self.__get_prompt_confirmation(
+                    chat_history=chat_history,
+                    input=input
+                )
+        else: 
+            prompt = await self.__get_prompt_data_collection(
+                chat_history=chat_history,
+                state=state,
+                input=input
+            )
+             
+
         chunks = []
         sentence = ""
         async for chunk in self.__llm_service.generate_stream(

@@ -81,20 +81,19 @@ class GoogleCalendarService(CalendarService):
     ):
        
         service =  await GoogleClientManager.build_service(service_name=self.__service_key)
-       
-
+        foramted_dt = datetime.datetime.fromisoformat(appointment_datetime)
+        end_time = foramted_dt + datetime.timedelta(minutes=30)
+        
         body = {
-            "timeMin": "2025-10-17T18:00:00-06:00",
-            "timeMax": "2025-10-17T18:30:00-06:00",
+            "timeMin": foramted_dt.isoformat(),
+            "timeMax": end_time.isoformat(),
             "timeZone": "America/Merida",
             "items": [{"id": self.calendar_id}]
         }
 
         
         res = service.freebusy().query(body=body).execute()
-        print(res, "RESSSSSSSSSSSSSSSSSS")
-       
-        # calendars = res.get("calendars", {})
-        # busy_slots = calendars.get(self.calendar_id, {}).get("busy", [])
+        calendars = res.get("calendars", {})
+        busy_slots = calendars.get(self.calendar_id, {}).get("busy", [])
 
-        # return len(busy_slots) == 0
+        return len(busy_slots) == 0
