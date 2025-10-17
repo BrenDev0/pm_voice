@@ -1,6 +1,6 @@
 from typing import List, Union
 from uuid import UUID
-from datetime import datetime
+import datetime
 
 from src.workflows.domain.services.llm_service import LlmService
 from src.workflows.application.prompt_service import PromptService
@@ -33,7 +33,7 @@ class AppointmentsAgent:
         input: str
     ) -> str:
         missing_data = [key for key, value in state.model_dump().items() if value is None]
-        now = datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
         system_message = f"""
         You are a personal data collector speaking with a client on a phone call to book thier appointment.
         Your job is to interact in a calm, friendly, and natural conversational tone, collecting any missing data needed for the appointment.
@@ -58,7 +58,6 @@ class AppointmentsAgent:
         - Personalize each response using information from the chat history and user input.
         - DO NOT repeat greetings, opening phrases, or explanations already used in the conversation.
         - Avoid robotic or scripted language; respond as a real person would on a phone call.
-        - Only ask for one missing data point at a time.
         - If the client asks why data is needed, explain briefly and naturally.
         - If you already have a piece of data, do not ask for it again.
         - Vary your language and sentence structure; do not start every response the same way.
