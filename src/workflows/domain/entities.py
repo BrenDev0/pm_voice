@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Event(BaseModel):
     title: str
-    appoinment_datetime: datetime
+    appoinment_datetime: str
     description: Optional[str] = None
     attendees: List[str]
 
