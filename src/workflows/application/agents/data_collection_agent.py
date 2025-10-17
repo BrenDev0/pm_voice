@@ -46,6 +46,8 @@ class DataCollector:
         Instructions:
         - Only extract and return fields that are explicitly mentioned in the latest client response or chat history.
         - If no new information is found for a section, set its value to null.
+        - All phone numbers should be converted to numerical format.
+        - All emails must me converted correct email format.
         - Do NOT guess or invent any values.
         - Do NOT use example names, locations, or dates unless they are present in the input or chat history.
         - Use natural, concise language.
