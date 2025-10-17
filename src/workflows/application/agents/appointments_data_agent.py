@@ -125,18 +125,18 @@ class AppointmentsAgent:
         input: str
     ):
         if state.appointment_datetime:
-            unavailable = await self.__calendar_service.check_availability(state.appointment_datetime.isoformat())
-            if unavailable:
+            available = await self.__calendar_service.check_availability(state.appointment_datetime.isoformat())
+            if available:
+                prompt = self.__get_prompt_confirmation(
+                    chat_history=chat_history,
+                    input=input
+                )
+            else: 
                 prompt = self.__get_prompt_unavailible(
                     chat_history=chat_history,
                     input=input
                 )
                 state.appointment_datetime = None
-            else: 
-                prompt = self.__get_prompt_confirmation(
-                    chat_history=chat_history,
-                    input=input
-                )
         else: 
             prompt = self.__get_prompt_data_collection(
                 chat_history=chat_history,
