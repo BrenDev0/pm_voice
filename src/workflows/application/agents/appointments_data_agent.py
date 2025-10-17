@@ -1,6 +1,7 @@
 from typing import List, Union
 from uuid import UUID
 import datetime
+from zoneinfo import ZoneInfo
 
 from src.workflows.domain.services.llm_service import LlmService
 from src.workflows.application.prompt_service import PromptService
@@ -33,7 +34,7 @@ class AppointmentsAgent:
         input: str
     ) -> str:
         missing_data = [key for key, value in state.model_dump().items() if value is None]
-        now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+        now = datetime.datetime.now(tz=ZoneInfo("America/Merida")).isoformat()
         system_message = f"""
         You are a personal data collector speaking with a client on a phone call to book thier appointment.
         Your job is to interact in a calm, friendly, and natural conversational tone, collecting any missing data needed for the appointment.
