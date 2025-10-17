@@ -56,6 +56,7 @@ class GoogleCalendarService(CalendarService):
   
         event_data = {
             'summary': event.title,
+            'description': event.description,
             'start': {
                 'dateTime': foramted_dt.isoformat(),
                 'timeZone': 'America/Merida',
