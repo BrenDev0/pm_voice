@@ -1,11 +1,11 @@
 from pydantic import BaseModel
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 class Event(BaseModel):
     title: str
-    start: datetime
-    end: datetime
+    appoinment_datetime: datetime
+    description: Optional[str] = None
     attendees: List[str]
 
 class EmbeddingConfig(BaseModel):

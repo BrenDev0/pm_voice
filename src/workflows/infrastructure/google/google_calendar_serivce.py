@@ -50,15 +50,18 @@ class GoogleCalendarService(CalendarService):
         event: Event
     ):
         service =  await GoogleClientManager.build_service(service_name=self.__service_key)
+
+        foramted_dt = datetime.datetime.fromisoformat(event.appoinment_datetime)
+        end_time = foramted_dt + datetime.timedelta(minutes=30)
   
         event_data = {
             'summary': event.title,
             'start': {
-                'dateTime': event.start,
+                'dateTime': foramted_dt.isoformat(),
                 'timeZone': 'America/Merida',
             },
             'end': {
-                'dateTime': event.end,
+                'dateTime': end_time.isoformat(),
                 'timeZone': 'America/Merida'
             }
         }

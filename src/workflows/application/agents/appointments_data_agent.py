@@ -4,6 +4,7 @@ import datetime
 from zoneinfo import ZoneInfo
 
 from src.workflows.domain.services.llm_service import LlmService
+from src.workflows.domain.entities import Event
 from src.workflows.application.prompt_service import PromptService
 from src.shared.domain.entities import Message
 from src.shared.application.use_cases.stream_tts import StreamTTS
@@ -131,6 +132,14 @@ class AppointmentsAgent:
                     chat_history=chat_history,
                     input=input
                 )
+                new_event = Event(
+                    title=f"Cita con {state.name}",
+                    appoinment_datetime=state.appointment_datetime.isoformat(),
+                    description=chat_history,
+                    attendees=[state.email]
+                )
+
+                await self.__calendar_service.create_event(new_event)
             else: 
                 prompt = self.__get_prompt_unavailible(
                     chat_history=chat_history,
