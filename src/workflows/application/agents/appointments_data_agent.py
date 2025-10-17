@@ -135,7 +135,7 @@ class AppointmentsAgent:
                 new_event = Event(
                     title=f"Cita con {state.name}",
                     appoinment_datetime=state.appointment_datetime.isoformat(),
-                    description=chat_history,
+                    description=str(chat_history),
                     attendees=[state.email]
                 )
 
