@@ -2,6 +2,8 @@ from src.workflows.domain.services.llm_service import LlmService
 from src.workflows.application.prompt_service import PromptService
 from src.shared.domain.models import State
 from src.workflows.domain.models import DataCollectorResponse
+import datetime 
+from zoneinfo import ZoneInfo
 
 from src.shared.utils.decorators.error_handler import error_handler
 
@@ -20,6 +22,7 @@ class DataCollector:
         self,
         state: State
     ):
+        now = datetime.datetime.now(tz=ZoneInfo("America/Merida")).isoformat()
         system_message = f"""
         You are an assistant for a real estate workflow. 
         Your job is to analyze the latest client response and the chat history to:
@@ -27,6 +30,9 @@ class DataCollector:
         1. Extract any information that matches the following fields:
         - Investment Data: type (house, apartment, commercial, land), location, budget, action (buy, sell, rent)
         - Appointment Data: appointment_datetime, name, email, phone
+        the current date time is:
+            {now}
+            use this as a reference when adding appoinment_datetime
 
         2. Determine the client's intent:
         - If the client is showing intent to make an appointment, set client_intent to "appointment".
