@@ -18,7 +18,7 @@ class DataCollector:
         self.__prompt_service = prompt_service
     
     @error_handler(module=__MODULE)
-    async def __get_prompt(
+    def __get_prompt(
         self,
         state: State
     ):
@@ -54,7 +54,7 @@ class DataCollector:
         - If the client provides both appointment and investment information, set client_intent to the one most recently discussed.
         """
 
-        prompt = await self.__prompt_service.build_prompt(
+        prompt = self.__prompt_service.build_prompt(
             system_message=system_message,
             input=state['input'],
             chat_history=state['chat_history']
@@ -68,7 +68,7 @@ class DataCollector:
         state: State
     ) -> DataCollectorResponse:
         
-        prompt = await self.__get_prompt(state=state)
+        prompt = self.__get_prompt(state=state)
 
         response = await self.__llm_service.invoke_structured(
             prompt=prompt,

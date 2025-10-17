@@ -21,7 +21,7 @@ class FallbackAgent:
         self.__stream_tts = stream_tts
     
     @error_handler(module=__MODULE)
-    async def __get_prompt(
+    def __get_prompt(
         self,
         chat_history: List[Message],
         input: str
@@ -40,7 +40,7 @@ class FallbackAgent:
         Keep replies short (one sentence), polite, and phone-call natural.
         """
 
-        prompt = await self.__prompt_service.build_prompt(
+        prompt = self.__prompt_service.build_prompt(
             system_message=system_message,
             chat_history=chat_history,
             input=input
@@ -57,7 +57,7 @@ class FallbackAgent:
     ):
         
         
-        prompt = await self.__get_prompt(
+        prompt = self.__get_prompt(
             chat_history=chat_history,
             input=input
         )

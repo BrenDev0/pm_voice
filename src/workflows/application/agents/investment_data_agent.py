@@ -22,7 +22,7 @@ class InvestmentDataAgent:
         self.__stream_tts = stream_tts
     
     @error_handler(module=__MODULE)
-    async def __get_prompt(
+    def __get_prompt(
         self,
         state: InvestmentState,
         chat_history: List[Message],
@@ -69,7 +69,7 @@ class InvestmentDataAgent:
 
         """
 
-        prompt = await self.__prompt_service.build_prompt(
+        prompt = self.__prompt_service.build_prompt(
             system_message=system_message,
             chat_history=chat_history,
             input=input
@@ -87,7 +87,7 @@ class InvestmentDataAgent:
     ):
         
         
-        prompt = await self.__get_prompt(
+        prompt = self.__get_prompt(
             chat_history=chat_history,
             state=state,
             input=input
