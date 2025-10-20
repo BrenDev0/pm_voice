@@ -123,6 +123,7 @@ async def websocket_interact(
                     final_state: State = await graph.ainvoke(state)
 
                     if final_state["end_call"]:
+                        print("ENDING call message")
                         await greeting.execute(
                             ws_connection_id=connection_id,
                             text="""
