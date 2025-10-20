@@ -11,9 +11,9 @@ class WebSocketTransportService:
     ):
         ws = WebsocketConnectionsContainer.resolve_connection(connection_id=connection_id)
 
-        if ws and not ws["listening"]:
+        if ws:
             try: 
-                await ws["ws"].send_json(data)
+                await ws.send_json(data)
             
             except ConnectionClosed:
                 print(f"Connection {connection_id} disconnected")
