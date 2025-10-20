@@ -40,7 +40,8 @@ class StateService:
             investment_data={},
             client_data={},
             appointment_data={},
-            response=None
+            response=None,
+            end_call=False
         )
 
     @classmethod

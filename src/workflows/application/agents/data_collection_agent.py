@@ -38,6 +38,7 @@ class DataCollector:
         - If the client is showing intent to make an appointment, set client_intent to "appointment".
         - If the client is showing interest in investments, opportunities, or services offered, set client_intent to "investment".
         - If the intent is unclear, set client_intent to "unknown".
+        - if the client has indeicated that the call is over or no more assistance is needed set client_intent to "end"
 
         CURRENT STATE:
         Investment Data: {state.get('investment_data')}

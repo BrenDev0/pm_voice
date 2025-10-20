@@ -13,3 +13,4 @@ class State(TypedDict):
     investment_data: InvestmentState
     appointment_data: AppointmentState
     client_intent: str
+    end_call: bool

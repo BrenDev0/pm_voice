@@ -20,7 +20,7 @@ from src.api.websocket.connections import WebsocketConnectionsContainer
 from src.api.middleware.hmac_verification import verify_hmac_ws
 from src.shared.domain.speech_to_text import SpeechToText
 from src.shared.dependencies.services import get_speech_to_text_service
-
+from src.shared.domain.models import State
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -120,15 +120,18 @@ async def websocket_interact(
                         "audio_data": audio_base64
                     })
 
-                    final_state = await graph.ainvoke(state)
+                    final_state: State = await graph.ainvoke(state)
+
+                    if final_state["end_call"]:
+                        await speech_to_text_service.cleanup_session(transcription_session)
+                        WebsocketConnectionsContainer.remove_connection(connection_id=connection_id)
+                        return 
                     
                     state = StateService.update_chat_history(
                         state=state,
                         input=final_state["input"],
                         response=final_state["response"]
                     )
-                    
-
 
     except WebSocketDisconnect:
         if transcription_session:

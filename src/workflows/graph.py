@@ -70,6 +70,10 @@ def create_graph(
         elif intent == "appointment":
             return "appointments"
         
+        elif intent == "end":
+            state["end_call"] = True,
+            return "end"
+        
         else:
             return "fallback"
     
@@ -85,7 +89,8 @@ def create_graph(
         {
             "appointments": "appointments",
             "investment_data": "investment_data",
-            "fallback": "fallback"
+            "fallback": "fallback",
+            "end": END
         }
     )
     graph.add_edge("appointments", END)
