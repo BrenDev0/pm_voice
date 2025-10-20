@@ -71,7 +71,10 @@ async def websocket_interact(
         return
     
 
-    WebsocketConnectionsContainer.register_connection(connection_id, websocket)
+    WebsocketConnectionsContainer.register_connection(connection_id, {
+        "ws": websocket,
+        "listening": False
+    })
     
     print(f'Websocket connection: {connection_id} opened.')
     
@@ -89,6 +92,7 @@ async def websocket_interact(
     try:
         while True: 
             message = await websocket.receive()
+
             if "bytes" in message:
                 if transcription_session:
                     await speech_to_text_service.send_audio_chunk(transcription_session, message["bytes"])
@@ -99,10 +103,14 @@ async def websocket_interact(
 
                 if message_type == "audio_start":
                     print("START")
+                    ws_conn = WebsocketConnectionsContainer.resolve_connection(connection_id=connection_id)
+                    ws_conn["listenting"] = True
                     transcription_session = await speech_to_text_service.start_transcription_session()
 
                 elif message_type == "audio_end":
                     print("END")
+                    ws_conn = WebsocketConnectionsContainer.resolve_connection(connection_id=connection_id)
+                    ws_conn["listenting"] = False
                     transcription = await speech_to_text_service.end_transcription_session(transcription_session)
                     transcription_session = None
                     
