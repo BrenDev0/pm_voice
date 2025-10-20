@@ -79,7 +79,7 @@ async def websocket_interact(
     await greeting.execute(
         ws_connection_id=connection_id,
         text="""
-        Gracias para llamar Propiedades  mérida! ¿En que te puedo ayudar?
+        Gracias para llamar Propiedades mérida! ¿En que te puedo ayudar?
         """ 
     )
     
@@ -123,6 +123,12 @@ async def websocket_interact(
                     final_state: State = await graph.ainvoke(state)
 
                     if final_state["end_call"]:
+                        await greeting.execute(
+                            ws_connection_id=connection_id,
+                            text="""
+                            Muchas gracias. Si necesita algo más, no dude en llamarnos. Buen día
+                            """ 
+                        )   
                         await speech_to_text_service.cleanup_session(transcription_session)
                         WebsocketConnectionsContainer.remove_connection(connection_id=connection_id)
                         return 
