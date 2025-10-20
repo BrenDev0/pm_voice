@@ -17,7 +17,6 @@
         let socket;
         let audioQueue = [];
         let isPlayingAudio = false;
-        let recording = false
 
         document.getElementById('openBtn').addEventListener('click', openConnection);
         document.getElementById('startBtn').addEventListener('click', startRecording);
@@ -44,10 +43,8 @@
                     
                     if (data.type === 'audio_response' && data.audio_data) {
                         // Add audio chunk to queue
-                        if(!recording) {
-                            audioQueue.push(data.audio_data);
-                            playNextAudio();
-                        }
+                        audioQueue.push(data.audio_data);
+                        playNextAudio();
                     }
 
                     if (data.type === 'transcription') {
@@ -78,8 +75,6 @@
                     }
                 });
                 
-                recording = true
-                audioQueue = []
                 mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
                 socket.send(JSON.stringify({ type: 'audio_start' }));
                 mediaRecorder.start(500); // Send chunks every second
@@ -100,7 +95,6 @@
 
                 mediaRecorder.onstop = () => {
                     // Send end signal
-                    recording = false
                     if (socket.readyState === WebSocket.OPEN) {
                         socket.send(JSON.stringify({ type: 'audio_end' }));
                     }
@@ -117,7 +111,6 @@
                 mediaRecorder.stop();
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
-            
             
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
