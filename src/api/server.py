@@ -104,14 +104,14 @@ async def websocket_interact(
                 if message_type == "audio_start":
                     print("START")
                     ws_conn = WebsocketConnectionsContainer.resolve_connection(connection_id=connection_id)
-                    ws_conn["listenting"] = True
+                    ws_conn["listening"] = True
                     print(ws_conn, "CONN::::::::::::::")
                     transcription_session = await speech_to_text_service.start_transcription_session()
 
                 elif message_type == "audio_end":
                     print("END")
                     ws_conn = WebsocketConnectionsContainer.resolve_connection(connection_id=connection_id)
-                    ws_conn["listenting"] = False
+                    ws_conn["listening"] = False
                     print(ws_conn, "CONN::::::::::::::")
                     transcription = await speech_to_text_service.end_transcription_session(transcription_session)
                     transcription_session = None
